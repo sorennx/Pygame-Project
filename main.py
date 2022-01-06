@@ -8,9 +8,9 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 #Images
 BOB_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets', 'Bob_Character.png'))
-
+JOHN_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','John_Character.png'))
 TEST_IMAGE = pygame.image.load(os.path.join('Assets','test.png'))
-
+BACKGROUND = pygame.image.load(os.path.join('Assets','Background.png'))
 
 #Characters after scaling
 #BOB_CHARACTER = pygame.transform.scale(BOB_CHARACTER_IMAGE, (150,150))
@@ -26,6 +26,9 @@ class Game(object):
         self.characterCount = 0
         self.createCharacters()
 
+    def drawBackground(self, stage=0):
+        if stage == 0:
+            self.gameWindow.blit(BACKGROUND,(0,0))
     def getGameWindow(self):
         window = pygame.display.set_mode((self.width, self.height))  # window
         pygame.display.set_caption(self.gameName)
@@ -36,8 +39,8 @@ class Game(object):
         name = "Bob"
         healthPoints = 100
         attackDamage = 10
-        characterImage = BOB_CHARACTER_IMAGE
-        char = Character(name,healthPoints,attackDamage, characterImage)
+        characterImage = JOHN_CHARACTER_IMAGE
+        char = Character(name, healthPoints, attackDamage, characterImage)
         self.characterList.append(char)
         self.characterCount += 1
 
@@ -57,15 +60,27 @@ class Game(object):
                     run = False
 
             self.drawWindow(bob1)
-            self.characterList[0].charPos.x += 1
+            #self.characterList[0].charPos.x += 1
+            keys_pressed = pygame.key.get_pressed()
 
+            self.handleMovement(keys_pressed,bob1)
 
     def drawWindow(self, char1):
         self.gameWindow.fill(WHITE)
+        self.drawBackground()
 
         self.gameWindow.blit(char1.characterImage, (char1.charPos.x, char1.charPos.y))
         pygame.display.update()
 
+    def handleMovement(self,keysPressed, character):
+        if keysPressed[pygame.K_a]:
+            character.charPos.x -= character.characterVelocity
+        if keysPressed[pygame.K_s]:
+            character.charPos.y += character.characterVelocity
+        if keysPressed[pygame.K_w]:
+            character.charPos.y -= character.characterVelocity
+        if keysPressed[pygame.K_d]:
+            character.charPos.x += character.characterVelocity
 
 class Character(object):
     def __init__(self, name, healthPoints, attackDamage, characterImage):
@@ -81,8 +96,9 @@ class Character(object):
         self.charPos = pygame.Rect(self.xStartCoords, self.yStartCoords, self.characterWidth, self.characterHeight)
 
 
+
 def main():
-    gameName = "gameHobby"
+    gameName = "ExileOfPath"
     WIDTH = 900
     HEIGHT = 500
     TICKRATE = 60
