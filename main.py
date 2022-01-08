@@ -17,9 +17,18 @@ TEST_IMAGE = pygame.image.load(os.path.join('Assets','test.png'))
 BACKGROUND = pygame.image.load(os.path.join('Assets','Background.png'))
 EVILBAKER_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','Evilbaker_Character.png'))
 EVILBAKER_CHARACTER_IMAGE = pygame.transform.scale(EVILBAKER_CHARACTER_IMAGE,(150,150))
+
+HP_BAR_FULL = pygame.image.load(os.path.join('Assets','HP_Bar_Full.png'))
+HP_BAR_80 = pygame.image.load(os.path.join('Assets','HP_BAR_80.png'))
+HP_BAR_60 = pygame.image.load(os.path.join('Assets','HP_BAR_60.png'))
+HP_BAR_40 = pygame.image.load(os.path.join('Assets','HP_BAR_40.png'))
+HP_BAR_20 = pygame.image.load(os.path.join('Assets','HP_BAR_20.png'))
 #Characters after scaling
 #BOB_CHARACTER = pygame.transform.scale(BOB_CHARACTER_IMAGE, (150,150))
 HEALTH_FONT = pygame.font.SysFont('comicsans', 40)
+
+#todo: hpBarAboveCharacter, hpBarInTheCorner, new models for the character, new background image, refractor code into different files/modules
+
 class Game(object):
     def __init__(self, gameName, tickRate,width, height):
         self.gameName = gameName
@@ -38,6 +47,7 @@ class Game(object):
     def drawBackground(self, stage=0):
         if stage == 0:
             self.gameWindow.blit(BACKGROUND,(0,0))
+
     def getGameWindow(self):
         window = pygame.display.set_mode((self.width, self.height))  # window
         pygame.display.set_caption(self.gameName)
@@ -74,6 +84,7 @@ class Game(object):
         charHptext = self.healthFont.render(str(char.currentHp), True, BLACK)
         self.gameWindow.blit(charHptext,(char.charPos.x+char.characterWidth/2-20, char.charPos.y-10))
         pygame.display.update()
+
     def mainLoop(self):
         run = True
         clock = pygame.time.Clock()
@@ -87,12 +98,29 @@ class Game(object):
                     run = False
 
             self.drawWindow(bob1,evilbaker1)
+            self.updateCharacterHpBar(bob1)
             self.drawCharacterHp(bob1) #move those methods drawing characters to the class of the object ? add property so that when a character moves, hp moves too ?
             self.drawCharacterHp(evilbaker1)
+            bob1.currentHp = 87
             #self.characterList[0].charPos.x += 1
             keys_pressed = pygame.key.get_pressed()
 
             self.handleMovement(keys_pressed,bob1)
+
+    def updateCharacterHpBar(self,char):
+        char.hpBarAboveCharacter.x = char.charPos.x+char.characterWidth/2-30
+        char.hpBarAboveCharacter.y = char.charPos.y-10
+        if char.currentHp/char.maxHp >= 1:
+            self.gameWindow.blit(HP_BAR_FULL,(char.hpBarAboveCharacter.x, char.hpBarAboveCharacter.y))
+        elif char.currentHp/char.maxHp >= 0.8:
+            self.gameWindow.blit(HP_BAR_80, (char.hpBarAboveCharacter.x, char.hpBarAboveCharacter.y))
+        elif char.currentHp/char.maxHp >= 0.6:
+            self.gameWindow.blit(HP_BAR_60, (char.hpBarAboveCharacter.x, char.hpBarAboveCharacter.y))
+        elif char.currentHp/char.maxHp >= 0.4:
+            self.gameWindow.blit(HP_BAR_40, (char.hpBarAboveCharacter.x, char.hpBarAboveCharacter.y))
+        elif char.currentHp/char.maxHp >= 0.2:
+            self.gameWindow.blit(HP_BAR_20, (char.hpBarAboveCharacter.x, char.hpBarAboveCharacter.y))
+        pygame.display.update()
 
     def drawWindow(self, char1, enemy1):
         self.gameWindow.fill(WHITE)
@@ -130,8 +158,8 @@ class Character(object):
         self.charPos = pygame.Rect(self.xStartCoords, self.yStartCoords, self.characterWidth, self.characterHeight)
         self.hpAboveCharacterHeight = 10
         self.hpAboveCharacterWidth = 50
-        #self.hpAboveCharacter = pygame.Rect(self.charPos.x+10, self.charPos.y+10, self.hpAboveCharacterWidth,self.characterHeight)
-
+        #self.hpAboveCharacter = pygame.Rect(self.charPos.x+10, self.charPos.y-10, self.hpAboveCharacterWidth,self.characterHeight)
+        self.hpBarAboveCharacter = pygame.Rect(self.characterWidth/2, self.charPos.y-10, self.hpAboveCharacterWidth, self.hpAboveCharacterHeight)
 
 class Hero(Character):
     pass
