@@ -1,6 +1,10 @@
 import pygame
 import os
 
+#initialising IS_MODULE_SDK
+pygame.font.init()
+
+
 #predifened RBG colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -11,10 +15,11 @@ BOB_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets', 'Bob_Character.pn
 JOHN_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','John_Character.png'))
 TEST_IMAGE = pygame.image.load(os.path.join('Assets','test.png'))
 BACKGROUND = pygame.image.load(os.path.join('Assets','Background.png'))
-
+EVILBAKER_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','Evilbaker_Character.png'))
+EVILBAKER_CHARACTER_IMAGE = pygame.transform.scale(EVILBAKER_CHARACTER_IMAGE,(150,150))
 #Characters after scaling
 #BOB_CHARACTER = pygame.transform.scale(BOB_CHARACTER_IMAGE, (150,150))
-
+HEALTH_FONT = pygame.font.SysFont('comicsans', 40)
 class Game(object):
     def __init__(self, gameName, tickRate,width, height):
         self.gameName = gameName
@@ -24,7 +29,11 @@ class Game(object):
         self.gameWindow = self.getGameWindow()
         self.characterList = []
         self.characterCount = 0
+        self.enemyList = []
+        self.enemyCount = 0
         self.createCharacters()
+        self.createEnemies()
+        self.healthFont = pygame.font.SysFont('verdana', 14)
 
     def drawBackground(self, stage=0):
         if stage == 0:
@@ -44,32 +53,55 @@ class Game(object):
         self.characterList.append(char)
         self.characterCount += 1
 
-    def createCharacters(self, n=2):
+    def createEnemy(self):
+        name = "Evil Baker"
+        healthPoints = 100
+        attackDamage = 10
+        characterImage = EVILBAKER_CHARACTER_IMAGE
+        enemy = Enemy(name, healthPoints, attackDamage, characterImage)
+        self.enemyList.append(enemy)
+        self.enemyCount += 1
+
+    def createCharacters(self, n=1):
         for i in range(n):
             self.createCharacter()
 
+    def createEnemies(self, n=1):
+        for i in range(n):
+            self.createEnemy()
+
+    def drawCharacterHp(self, char):
+        charHptext = self.healthFont.render(str(char.currentHp), True, BLACK)
+        self.gameWindow.blit(charHptext,(char.charPos.x+char.characterWidth/2-20, char.charPos.y-10))
+        pygame.display.update()
     def mainLoop(self):
         run = True
         clock = pygame.time.Clock()
         bob1 = self.characterList[0]
 
+        evilbaker1 = self.enemyList[0]
         while run:
             clock.tick(self.tickRate)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
 
-            self.drawWindow(bob1)
+            self.drawWindow(bob1,evilbaker1)
+            self.drawCharacterHp(bob1) #move those methods drawing characters to the class of the object ? add property so that when a character moves, hp moves too ?
+            self.drawCharacterHp(evilbaker1)
             #self.characterList[0].charPos.x += 1
             keys_pressed = pygame.key.get_pressed()
 
             self.handleMovement(keys_pressed,bob1)
 
-    def drawWindow(self, char1):
+    def drawWindow(self, char1, enemy1):
         self.gameWindow.fill(WHITE)
         self.drawBackground()
+        #draw characters using loop, ideally
+        self.gameWindow.blit(enemy1.characterImage, (enemy1.charPos.x, enemy1.charPos.y))
 
         self.gameWindow.blit(char1.characterImage, (char1.charPos.x, char1.charPos.y))
+
         pygame.display.update()
 
     def handleMovement(self,keysPressed, character):
@@ -85,16 +117,43 @@ class Game(object):
 class Character(object):
     def __init__(self, name, healthPoints, attackDamage, characterImage):
         self.name = name
-        self.hp = healthPoints
+        self.maxHp = healthPoints
+        self.currentHp = self.maxHp
         self.ad = attackDamage
+        self.characterLevel = 1
         self.characterImage = characterImage
-        self.characterWidth = 150
-        self.characterHeight = 150
+        self.characterWidth = 120
+        self.characterHeight = 120
         self.xStartCoords = 0
         self.yStartCoords = 200
         self.characterVelocity = 5
         self.charPos = pygame.Rect(self.xStartCoords, self.yStartCoords, self.characterWidth, self.characterHeight)
+        self.hpAboveCharacterHeight = 10
+        self.hpAboveCharacterWidth = 50
+        #self.hpAboveCharacter = pygame.Rect(self.charPos.x+10, self.charPos.y+10, self.hpAboveCharacterWidth,self.characterHeight)
 
+
+class Hero(Character):
+    pass
+
+
+class Enemy(object):
+    def __init__(self,name,healthPoints,attackDamage,characterImage):
+        self.name = name
+        self.maxHp = healthPoints
+        self.currentHp = self.maxHp
+        self.characterLevel = 1
+        self.ad = attackDamage
+        self.characterImage = characterImage
+        self.characterWidth = 150
+        self.characterHeight = 150
+        self.xStartCoords = 700
+        self.yStartCoords = 200
+        self.characterVelocity = 5
+        self.charPos = pygame.Rect(self.xStartCoords, self.yStartCoords, self.characterWidth, self.characterHeight)
+
+class Boss(Enemy):
+    pass
 
 
 def main():
