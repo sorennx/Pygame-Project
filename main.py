@@ -11,6 +11,12 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 #Images
+backgroundwidth = 1280
+backgroundheight =720
+BASIC_BACKGROUND_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/Backgrounds','BasicRoad.png')),(backgroundwidth,backgroundheight))
+MAIN_HERO_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero','BaseMageImage.png')),(200,200))
+
+
 BOB_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets', 'Bob_Character.png'))
 JOHN_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','John_Character.png'))
 TEST_IMAGE = pygame.image.load(os.path.join('Assets','test.png'))
@@ -43,7 +49,7 @@ EVILBAKER_BASIC_ATTACK_IMG_LIST = [
 ]
 
 #todo: align hpBarAboveCharacter with hptext, hpBarInTheCorner, new models for the character, new background image, refractor code into different files/modules
-
+#todo: hp bar using pygame fill something something
 class Game(object):
     def __init__(self, gameName, tickRate,width, height):
         self.gameName = gameName
@@ -60,7 +66,7 @@ class Game(object):
 
     def drawBackground(self, stage=0):
         if stage == 0:
-            self.gameWindow.blit(BACKGROUND,(0,0))
+            self.gameWindow.blit(BASIC_BACKGROUND_IMAGE,(0,0))
 
     def getGameWindow(self):
         window = pygame.display.set_mode((self.width, self.height))  # window
@@ -98,7 +104,7 @@ class Game(object):
         for j in self.enemyList:
             j.updateChar(self.gameWindow)
 
-        pygame.display.update()
+        #pygame.display.update()
 
     def createEnemies(self, n=1):
         for i in range(n):
@@ -113,23 +119,34 @@ class Game(object):
 
         bob1 = self.characterList[0]
         kanye1 = self.enemyList[0]
+
+        hero1 = MainHero(100,100,self.gameWindow)
+        heroGroup = pygame.sprite.Group()
+        heroGroup.add(hero1)
+
         while run:
             clock.tick(self.tickRate)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
 
+            pygame.display.update()
             self.drawWindow()
-            self.updateAllCharacters()
+            heroGroup.draw(self.gameWindow)
+            heroGroup.update()
 
-
-            keys_pressed = pygame.key.get_pressed()
-            self.handleCharMovement(keys_pressed,bob1)
-            self.handleEnemyMovement(keys_pressed,kanye1)
+            #
+            #
+            # self.updateAllCharacters()
+            #
+            #
+            # keys_pressed = pygame.key.get_pressed()
+            # self.handleCharMovement(keys_pressed,bob1)
+            # self.handleEnemyMovement(keys_pressed,kanye1)
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
         self.drawBackground()
-        #pygame.display.update()
+
 
     def handleCharMovement(self,keysPressed, character):
         if keysPressed[pygame.K_a]:
@@ -282,11 +299,59 @@ class Enemy(object):
     def performBasicAttack(self,window):
         if self.gcd == False:
             for i in self.basicAttackImgList:
-                window.blit(i,(self.charPos.x, self.charPos.y))
-                pygame.display.update()
+                for j in range(20):
+                    window.blit(i,(self.charPos.x, self.charPos.y))
+                    #pygame.display.update()
             #self.gcd = True
 
+class MainHero(pygame.sprite.DirtySprite):
+    def __init__(self, x,y,window ):
+        super().__init__()
+        self.window = window
+        # Hero related images and general info:
+        self.image = MAIN_HERO_IMAGE
+        self.rect = self.image.get_rect()
+        self.rect.center = [x,y]
 
+        #MainHero general attributes:
+        self.maxHp = 100
+        self.baseMovementSpeed = 6
+        self.baseHpBarHeight = 10
+        self.baseHpBarWidth = 50
+
+        #Active hero atributes:
+        self.currentHp = self.maxHp - 23
+        self.movementSpeed = self.baseMovementSpeed
+        self.visible = True
+
+
+
+    def update(self):
+        #self.rect.center = pygame.mouse.get_pos()
+        self.handleHeroMovement()
+        self.drawHpBar()
+
+    def drawHpBar(self):
+        pygame.draw.rect(self.window,(0,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2)-1,self.rect.y-1,self.baseHpBarWidth+2,self.baseHpBarHeight+2), border_radius=0) #black border around hp bar
+        pygame.draw.rect(self.window,(255,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth,self.baseHpBarHeight), border_radius=0) #red hp bar
+        pygame.draw.rect(self.window,(0,167,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth*(self.currentHp/self.maxHp),10),border_radius = 0) #green hp bar
+
+    def basicAttack(self):
+        sound = pygame.image.load(os.path.join('Assets','sound.mp4'))
+
+    def handleHeroAttacks(self):
+        self.basicAttack()
+    def handleHeroMovement(self):
+        keysPressed = pygame.key.get_pressed()
+
+        if keysPressed[pygame.K_a]:
+            self.rect.x -= self.movementSpeed
+        if keysPressed[pygame.K_s]:
+            self.rect.y += self.movementSpeed
+        if keysPressed[pygame.K_w]:
+            self.rect.y -= self.movementSpeed
+        if keysPressed[pygame.K_d]:
+            self.rect.x += self.movementSpeed
 
 class Boss(Enemy):
     pass
@@ -294,8 +359,8 @@ class Boss(Enemy):
 
 def main():
     gameName = "ExileOfPath by CCCC"
-    WIDTH = 900
-    HEIGHT = 500
+    WIDTH = 1280
+    HEIGHT = 720
     TICKRATE = 60
     game = Game(gameName, TICKRATE, WIDTH, HEIGHT)
     game.mainLoop()
