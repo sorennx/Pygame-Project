@@ -4,8 +4,10 @@ import time
 #initialising pygame modules
 import velocity as velocity
 import random as r
-pygame.font.init()
 
+#pygame inits
+pygame.font.init()
+pygame.mixer.init()
 
 #predifened RBG colors
 WHITE = (255, 255, 255)
@@ -231,13 +233,18 @@ class MainHero(pygame.sprite.DirtySprite):
         pygame.draw.rect(self.window,(0,167,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth*(self.currentHp/self.maxHp),10),border_radius = 0) #green hp bar
 
     def basicRangeAttack(self): #todo: attacks as seperate class
-       # sound = pygame.image.load(os.path.join('Assets','sound.mp4'))
+        sound = pygame.mixer.Sound(os.path.join('Assets/Sounds/AttackSounds/Fireball','FireballSound.wav'))
+        sound.set_volume(0.3)
+
+
         self.currentAttack = 1
         self.projectileSpawnCords = [self.rect.x+180, self.rect.y+50]
         projImage = self.projectileImg
         projImage = pygame.transform.scale(projImage,(32,32))
         t = None
-
+        # if self.attackFrame == 1:
+        #     sound.play()
+        #
         if self.attackFrame == 7:
             proj = Projectile(self.window, self.weapon.weaponProjectileSpawnCords[0], self.weapon.weaponProjectileSpawnCords[1], projImage)
             self.projectileList.append(proj)
