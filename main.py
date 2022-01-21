@@ -3,7 +3,7 @@ import os
 import time
 #initialising pygame modules
 import velocity as velocity
-
+import random as r
 pygame.font.init()
 
 
@@ -17,8 +17,8 @@ backgroundwidth = 1280
 backgroundheight =720
 BASIC_BACKGROUND_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/Backgrounds','BasicRoad.png')),(backgroundwidth,backgroundheight))
 MAIN_HERO_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero','BaseMageImage.png')),(200,200))
-
-
+FIREMAGE_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/RedMage','FireMage1.png')),(108,180))
+FIREMAGE_STAFF_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/RedMage','FireMageStaff1.png')),(72,128))
 BOB_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets', 'Bob_Character.png'))
 JOHN_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','John_Character.png'))
 TEST_IMAGE = pygame.image.load(os.path.join('Assets','test.png'))
@@ -96,9 +96,8 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
+        hero1 = MainHero(50, 550, self.gameWindow,FIREMAGE_IMAGE)
 
-
-        hero1 = MainHero(50,550,self.gameWindow)
         heroGroup = pygame.sprite.Group()
         heroGroup.add(hero1)
         heroProjGroup = pygame.sprite.Group()
@@ -108,6 +107,7 @@ class Game(object):
         enemyGroup = pygame.sprite.Group()
         enemyGroup.add(enemy1)
         enemyGroup.add(enemy2)
+
 
         while run:
             clock.tick(self.tickRate)
@@ -123,10 +123,13 @@ class Game(object):
             #MainHero handling part
             heroGroup.update()
             heroGroup.draw(self.gameWindow)
+
             self.handleHeroAttacks(hero1,keysPressed)
+
 
             #Enemy handling part
             enemyGroup.update()
+            self.spawnSomeMobs(enemyGroup)
             enemyGroup.draw(self.gameWindow)
 
 
@@ -135,16 +138,13 @@ class Game(object):
             heroProjGroup.update()
             heroProjGroup.draw(self.gameWindow)
             self.handleHeroProj(hero1,heroProjGroup)
-
-            # targetsHit = pygame.sprite.groupcollide(enemyGroup,heroProjGroup,False,False)
-            # for s, o in targetsHit.items():
-            #     print(s.currentHp,o)
             self.handleProjCollision(heroProjGroup,enemyGroup)
 
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
         self.drawBackground()
+
 
     def handleHeroProj(self,hero,heroProjGroup):
         for i in hero.projectileList:
@@ -153,8 +153,7 @@ class Game(object):
         #print(heroProjGroup)
 
     def handleHeroAttacks(self,hero,keysPressed):
-        if keysPressed[
-            pygame.K_SPACE]:  # Is there a way to move it to the MainHero class ?
+        if keysPressed[pygame.K_SPACE]:  # Is there a way to move it to the MainHero class ?
             if hero.gcd == False:
                 hero.basicRangeAttack()
                 hero.gcd = True
@@ -171,14 +170,19 @@ class Game(object):
                     i.currentHp -= proj.damage
                     proj.kill()
 
+    def spawnSomeMobs(self,enemyGroup):
+        if len(enemyGroup) <=2:
+            for i in range(2):
+                enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow)
+                enemyGroup.add(enemy)
 
 
 class MainHero(pygame.sprite.DirtySprite):
-    def __init__(self, x,y,window ):
+    def __init__(self, x,y,window, img = MAIN_HERO_IMAGE ):
         super().__init__()
         self.window = window
         #Hero related images and general info:
-        self.image = MAIN_HERO_IMAGE
+        self.image = img
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
 
@@ -190,6 +194,14 @@ class MainHero(pygame.sprite.DirtySprite):
         self.projectileSpawnCords = [0,0]
         self.hostile = False
 
+
+        #Hero weapon related stuff:
+        self.weaponXoffset = 66
+        self.weaponYoffset = 56
+        self.weaponImg = FIREMAGE_STAFF_IMAGE
+        self.weaponGroup = pygame.sprite.Group()
+        self.weapon = None
+        self.spawnWeapon()
         #Hero active atributes:
         self.currentHp = self.maxHp
         self.movementSpeed = self.baseMovementSpeed
@@ -199,12 +211,15 @@ class MainHero(pygame.sprite.DirtySprite):
         self.currentAttack = 0
         self.projectileList = []
 
+
     def update(self):
         #self.rect.center = pygame.mouse.get_pos()
         keysPressed = pygame.key.get_pressed()
         self.handleHeroMovement(keysPressed)
+        self.drawWeapon()
         #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
+
 
     def drawHpBar(self):
         pygame.draw.rect(self.window,(0,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2)-1,self.rect.y-1,self.baseHpBarWidth+2,self.baseHpBarHeight+2), border_radius=0) #black border around hp bar
@@ -232,7 +247,13 @@ class MainHero(pygame.sprite.DirtySprite):
             if len(self.projectileList)>0:
                 del self.projectileList[0]
 
-        self.image = MAINHERO_BASICRANGEATTACK[self.attackFrame]
+        tx = self.rect
+        #self.image = MAINHERO_BASICRANGEATTACK[self.attackFrame]
+        self.weapon.image = pygame.transform.rotate(self.weaponImg, -1*self.attackFrame)
+        x,y = self.weapon.rect.center
+        self.weapon.rect = self.weapon.image.get_rect()
+        self.weapon.rect.center = [x,y]
+
         self.attackFrame += 1
 
 
@@ -246,6 +267,19 @@ class MainHero(pygame.sprite.DirtySprite):
             self.rect.y -= self.movementSpeed
         if keysPressed[pygame.K_d]:
             self.rect.x += self.movementSpeed
+
+    def spawnWeapon(self):
+        wep = Weapon(self.rect.x+72,self.rect.y+56,self.window,self.weaponImg,'Staff')
+        self.weapon = wep
+        self.weaponGroup.add(wep)
+
+    def drawWeapon(self):
+        self.weaponGroup.update() #Order of updating and THEN drawing matters a lot!
+
+        for i in self.weaponGroup.sprites():
+            i.rect.x = self.rect.x+self.weaponXoffset
+            i.rect.y = self.rect.y+self.weaponYoffset
+        self.weaponGroup.draw(self.window)
 
 class Enemy(pygame.sprite.DirtySprite):
     def __init__(self, x,y,window ):
@@ -272,6 +306,7 @@ class Enemy(pygame.sprite.DirtySprite):
         self.attackFrame = 0
         self.currentAttack = 0
         self.projectileList = []
+        self.randomMovement = True
 
     def update(self):
         #self.rect.center = pygame.mouse.get_pos()
@@ -282,11 +317,26 @@ class Enemy(pygame.sprite.DirtySprite):
         if self.currentHp == 0:
             self.kill()
 
+        if self.randomMovement == True:
+            self.randomMove()
+
     def drawHpBar(self):
         pygame.draw.rect(self.window,(0,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2)-1,self.rect.y-1,self.baseHpBarWidth+2,self.baseHpBarHeight+2), border_radius=0) #black border around hp bar
         pygame.draw.rect(self.window,(255,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth,self.baseHpBarHeight), border_radius=0) #red hp bar
         pygame.draw.rect(self.window,(0,167,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth*(self.currentHp/self.maxHp),10),border_radius = 0) #green hp bar
 
+    def randomMove(self):
+        rx = r.randint(0,2)
+        ry = r.randint(0,2)
+
+        if rx == 1:
+            self.rect.x += 1
+        elif rx ==2:
+            self.rect.x -= 1
+        if ry ==1:
+            self.rect.y += 2
+        elif ry==2:
+            self.rect.y -= 2
 
 
 class Projectile(pygame.sprite.DirtySprite):
@@ -307,6 +357,17 @@ class Projectile(pygame.sprite.DirtySprite):
         else:
             self.kill()
 
+
+class Weapon(pygame.sprite.DirtySprite):
+    def __init__(self,x,y,window, img,weaponType):
+        super().__init__()
+        self.window = window
+
+        # Weapon related images and general info:
+        self.image = img
+        self.rect = self.image.get_rect()
+        self.rect.center = [x, y]
+        self.weaponType = weaponType
 
 
 
