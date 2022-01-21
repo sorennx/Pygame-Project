@@ -61,7 +61,7 @@ pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRang
 ]
 #Projectiles:
 FROSTBALL = pygame.image.load(os.path.join('Assets/Projectiles/Frostball','Frostball1.png'))
-
+FIREBALL = pygame.image.load(os.path.join('Assets/Projectiles/Fireball','Fireball1.png'))
 EVILBAKER_BASIC_ATTACK_IMG_LIST = [
     pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack1.png'))
 ]
@@ -202,6 +202,10 @@ class MainHero(pygame.sprite.DirtySprite):
         self.weaponGroup = pygame.sprite.Group()
         self.weapon = None
         self.spawnWeapon()
+
+        #Hero projectile related stuff:
+        self.projectileList = []
+        self.projectileImg = FIREBALL
         #Hero active atributes:
         self.currentHp = self.maxHp
         self.movementSpeed = self.baseMovementSpeed
@@ -209,7 +213,7 @@ class MainHero(pygame.sprite.DirtySprite):
         self.gcd = False
         self.attackFrame = 0
         self.currentAttack = 0
-        self.projectileList = []
+
 
 
     def update(self):
@@ -230,11 +234,12 @@ class MainHero(pygame.sprite.DirtySprite):
        # sound = pygame.image.load(os.path.join('Assets','sound.mp4'))
         self.currentAttack = 1
         self.projectileSpawnCords = [self.rect.x+180, self.rect.y+50]
-        projImage = FROSTBALL
+        projImage = self.projectileImg
+        projImage = pygame.transform.scale(projImage,(32,32))
         t = None
 
         if self.attackFrame == 7:
-            proj = Projectile(self.window, self.projectileSpawnCords[0], self.projectileSpawnCords[1], projImage)
+            proj = Projectile(self.window, self.weapon.weaponProjectileSpawnCords[0], self.weapon.weaponProjectileSpawnCords[1], projImage)
             self.projectileList.append(proj)
             t = proj
 
@@ -368,8 +373,10 @@ class Weapon(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x, y]
         self.weaponType = weaponType
+        self.weaponProjectileSpawnCords = [self.rect.x+72,self.rect.y+10]
 
-
+    def update(self):
+        self.weaponProjectileSpawnCords[0],self.weaponProjectileSpawnCords[1] = self.rect.x+72, self.rect.y+10
 
 
 
