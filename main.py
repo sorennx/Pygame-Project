@@ -18,6 +18,7 @@ YELLOW = (255, 255, 0)
 backgroundwidth = 1280
 backgroundheight =720
 BASIC_BACKGROUND_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/Backgrounds','BasicRoad.png')),(backgroundwidth,backgroundheight))
+SCROLLING_BACKGROUND_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/Backgrounds','ScollingBackgroundTest1.png')),(backgroundwidth,backgroundheight))
 MAIN_HERO_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero','BaseMageImage.png')),(200,200))
 FIREMAGE_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/RedMage','FireMage1.png')),(108,180))
 FIREMAGE_STAFF_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/RedMage','FireMageStaff1.png')),(72,128))
@@ -98,6 +99,13 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
+        bg1 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow)
+        bg2 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow)
+        bg2.rect.x = bg1.image.get_width()
+        backgroundGroup = pygame.sprite.Group()
+        backgroundGroup.add(bg1)
+        backgroundGroup.add(bg2)
+
         hero1 = MainHero(50, 550, self.gameWindow,FIREMAGE_IMAGE)
 
         heroGroup = pygame.sprite.Group()
@@ -119,9 +127,12 @@ class Game(object):
 
             keysPressed = pygame.key.get_pressed()
 
-            pygame.display.update()
-            self.drawWindow()
 
+            pygame.display.update()
+            #Background
+            self.drawWindow()
+            backgroundGroup.update()
+            backgroundGroup.draw(self.gameWindow)
             #MainHero handling part
             heroGroup.update()
             heroGroup.draw(self.gameWindow)
@@ -145,7 +156,7 @@ class Game(object):
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
-        self.drawBackground()
+        #self.drawBackground()
 
 
     def handleHeroProj(self,hero,heroProjGroup):
@@ -178,6 +189,24 @@ class Game(object):
                 enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow)
                 enemyGroup.add(enemy)
 
+
+class Background(pygame.sprite.DirtySprite):
+    def __init__(self,img,window):
+        super().__init__()
+        self.image = img
+        self.window = window
+        self.rect = self.image.get_rect()
+        self.rect.x = 0
+        self.rect.y = 0
+
+
+    def update(self):
+        if self.rect.x < self.image.get_width() * -1:
+            self.rect.x = self.image.get_width()-1
+        self.rect.x -=1
+
+    def drawBackground(self):
+        self.window.blit(BASIC_BACKGROUND_IMAGE,(0,0))
 
 class MainHero(pygame.sprite.DirtySprite):
     def __init__(self, x,y,window, img = MAIN_HERO_IMAGE ):
