@@ -99,14 +99,11 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
-        bg1 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow)
-        bg2 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow)
-        bg2.rect.x = bg1.image.get_width()
-        backgroundGroup = pygame.sprite.Group()
-        backgroundGroup.add(bg1)
-        backgroundGroup.add(bg2)
+
 
         hero1 = MainHero(50, 550, self.gameWindow,FIREMAGE_IMAGE)
+
+
 
         heroGroup = pygame.sprite.Group()
         heroGroup.add(hero1)
@@ -118,6 +115,12 @@ class Game(object):
         enemyGroup.add(enemy1)
         enemyGroup.add(enemy2)
 
+        bg1 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+        bg2 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+        bg2.rect.x = bg1.image.get_width()
+        backgroundGroup = pygame.sprite.Group()
+        backgroundGroup.add(bg1)
+        backgroundGroup.add(bg2)
 
         while run:
             clock.tick(self.tickRate)
@@ -127,7 +130,7 @@ class Game(object):
 
             keysPressed = pygame.key.get_pressed()
 
-
+            print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
             #Background
             self.drawWindow()
@@ -191,28 +194,42 @@ class Game(object):
 
 
 class Background(pygame.sprite.DirtySprite):
-    def __init__(self,img,window):
+    def __init__(self,img,window,hero):
         super().__init__()
         self.image = img
         self.window = window
         self.rect = self.image.get_rect()
         self.rect.x = 0
         self.rect.y = 0
+        self.hero = hero
 
 
-    def update(self):
+    def update(self): #Todo: add rolling background class that handles adding backgrounds based on char position
+
         if self.rect.x < self.image.get_width() * -1:
-            self.rect.x = self.image.get_width()-1
-        self.rect.x -=1
+            self.rect.x = self.image.get_width()-7
+
+        if self.hero.movingForward is True:
+            self.rect.x -= self.hero.movementSpeed
+
+
+        if self.hero.movingBackward is True:
+            self.rect.x += self.hero.movementSpeed
+
+
 
     def drawBackground(self):
         self.window.blit(BASIC_BACKGROUND_IMAGE,(0,0))
+
+
 
 class MainHero(pygame.sprite.DirtySprite):
     def __init__(self, x,y,window, img = MAIN_HERO_IMAGE ):
         super().__init__()
         self.window = window
         #Hero related images and general info:
+        self.xCord = x
+        self.yCord = y
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
@@ -237,6 +254,7 @@ class MainHero(pygame.sprite.DirtySprite):
         #Hero projectile related stuff:
         self.projectileList = []
         self.projectileImg = FIREBALL
+
         #Hero active atributes:
         self.currentHp = self.maxHp
         self.movementSpeed = self.baseMovementSpeed
@@ -244,7 +262,8 @@ class MainHero(pygame.sprite.DirtySprite):
         self.gcd = False
         self.attackFrame = 0
         self.currentAttack = 0
-
+        self.movingForward = False
+        self.movingBackward = False
 
 
     def update(self):
@@ -299,15 +318,24 @@ class MainHero(pygame.sprite.DirtySprite):
 
 
     def handleHeroMovement(self,keysPressed):
-
+        self.movingForward = False
+        self.movingBackward = False
         if keysPressed[pygame.K_a]:
             self.rect.x -= self.movementSpeed
+            self.xCord -= self.movementSpeed
+            self.movingBackward = True
         if keysPressed[pygame.K_s]:
             self.rect.y += self.movementSpeed
+            self.moving = True
         if keysPressed[pygame.K_w]:
             self.rect.y -= self.movementSpeed
+
         if keysPressed[pygame.K_d]:
-            self.rect.x += self.movementSpeed
+            if self.rect.x + self.movementSpeed < 1280/1.5:
+
+                self.rect.x += self.movementSpeed
+            self.xCord += self.movementSpeed
+            self.movingForward = True
 
     def spawnWeapon(self):
         wep = Weapon(self.rect.x+72,self.rect.y+56,self.window,self.weaponImg,'Staff')
