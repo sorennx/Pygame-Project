@@ -2,7 +2,6 @@ import pygame
 import os
 import time
 #initialising pygame modules
-import velocity as velocity
 import random as r
 
 #pygame inits
@@ -34,6 +33,8 @@ HP_BAR_80 = pygame.image.load(os.path.join('Assets','HP_BAR_80.png'))
 HP_BAR_60 = pygame.image.load(os.path.join('Assets','HP_BAR_60.png'))
 HP_BAR_40 = pygame.image.load(os.path.join('Assets','HP_BAR_40.png'))
 HP_BAR_20 = pygame.image.load(os.path.join('Assets','HP_BAR_20.png'))
+
+HP_BAR = pygame.image.load(os.path.join('Assets/HpBar','HpBar.png'))
 #Characters after scaling
 #BOB_CHARACTER = pygame.transform.scale(BOB_CHARACTER_IMAGE, (150,150))
 HEALTH_FONT = pygame.font.SysFont('comicsans', 40)
@@ -69,7 +70,7 @@ EVILBAKER_BASIC_ATTACK_IMG_LIST = [
     pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack1.png'))
 ]
 
-#todo: hpBarInTheCorner, new models for the character, new background image, refractor code into different files/modules
+#todo: hpBarInTheCorner, new models for the character, new background image, refractor code into different files/modules, xpbar, manabar
 
 class Game(object):
     def __init__(self, gameName, tickRate,width, height):
@@ -115,12 +116,20 @@ class Game(object):
         enemyGroup.add(enemy1)
         enemyGroup.add(enemy2)
 
+        hpbar1 = HpBar(hero1, self.gameWindow)
+        hpBarGroup = pygame.sprite.Group()
+        hpBarGroup.add(hpbar1)
+
+        #bg3 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1,'left')
         bg1 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
         bg2 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+
+        #bg3.rect.x -= bg1.image.get_width()
         bg2.rect.x = bg1.image.get_width()
         backgroundGroup = pygame.sprite.Group()
         backgroundGroup.add(bg1)
         backgroundGroup.add(bg2)
+        #backgroundGroup.add(bg3)
 
         while run:
             clock.tick(self.tickRate)
@@ -130,7 +139,7 @@ class Game(object):
 
             keysPressed = pygame.key.get_pressed()
 
-            print(hero1.xCord,hero1.rect.x)
+            #print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
             #Background
             self.drawWindow()
@@ -148,7 +157,9 @@ class Game(object):
             self.spawnSomeMobs(enemyGroup)
             enemyGroup.draw(self.gameWindow)
 
-
+            #HP bar in the corner handling part
+            hpBarGroup.update()
+            hpBarGroup.draw(self.gameWindow)
 
             #Projectile handling part
             heroProjGroup.update()
@@ -194,7 +205,7 @@ class Game(object):
 
 
 class Background(pygame.sprite.DirtySprite):
-    def __init__(self,img,window,hero):
+    def __init__(self,img,window,hero,pos = 'right'):
         super().__init__()
         self.image = img
         self.window = window
@@ -202,12 +213,16 @@ class Background(pygame.sprite.DirtySprite):
         self.rect.x = 0
         self.rect.y = 0
         self.hero = hero
+        self.pos = pos
 
 
     def update(self): #Todo: add rolling background class that handles adding backgrounds based on char position
 
-        if self.rect.x < self.image.get_width() * -1:
+        if self.rect.x < self.image.get_width() * -1 and self.pos == 'right':
             self.rect.x = self.image.get_width()-7
+
+        if self.pos == 'left' and self.hero.rect.x > self.image.get_width(): #todo: fix this
+            self.rect.x -= self.image.get_width()
 
         if self.hero.movingForward is True:
             self.rect.x -= self.hero.movementSpeed
@@ -256,7 +271,7 @@ class MainHero(pygame.sprite.DirtySprite):
         self.projectileImg = FIREBALL
 
         #Hero active atributes:
-        self.currentHp = self.maxHp
+        self.currentHp = self.maxHp -69
         self.movementSpeed = self.baseMovementSpeed
         self.visible = True
         self.gcd = False
@@ -321,9 +336,13 @@ class MainHero(pygame.sprite.DirtySprite):
         self.movingForward = False
         self.movingBackward = False
         if keysPressed[pygame.K_a]:
-            self.rect.x -= self.movementSpeed
-            self.xCord -= self.movementSpeed
-            self.movingBackward = True
+            if self.rect.x -self.movementSpeed <0:
+                self.movingBackward = False
+            else:
+                self.rect.x -= self.movementSpeed
+                self.xCord -= self.movementSpeed
+                self.movingBackward = True
+
         if keysPressed[pygame.K_s]:
             self.rect.y += self.movementSpeed
             self.moving = True
@@ -349,6 +368,21 @@ class MainHero(pygame.sprite.DirtySprite):
             i.rect.x = self.rect.x+self.weaponXoffset
             i.rect.y = self.rect.y+self.weaponYoffset
         self.weaponGroup.draw(self.window)
+class HpBar(pygame.sprite.DirtySprite):
+    def __init__(self,hero,window):
+        super().__init__()
+        self.window = window
+        self.hero = hero
+        self.image = HP_BAR
+        self.rect = self.image.get_rect()
+        self.rect.y = 720-50
+        self.rect.x = 0
+
+
+    def update(self):
+        pygame.draw.rect(self.window, (0, 0, 0), (self.rect.x+1, self.rect.y-1, 50, 50))
+        pygame.draw.rect(self.window, (180, 0, 0), (self.rect.x, self.rect.y+(50 - 50* self.hero.currentHp/self.hero.maxHp), 50,  50* self.hero.currentHp/self.hero.maxHp))
+
 
 class Enemy(pygame.sprite.DirtySprite):
     def __init__(self, x,y,window ):
