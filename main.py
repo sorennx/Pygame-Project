@@ -28,6 +28,11 @@ BACKGROUND = pygame.image.load(os.path.join('Assets','Background.png'))
 EVILBAKER_CHARACTER_IMAGE = pygame.image.load(os.path.join('Assets','Evilbaker2_Character.png'))
 EVILBAKER_CHARACTER_IMAGE = pygame.transform.scale(EVILBAKER_CHARACTER_IMAGE,(250,250))
 
+#Enemies img
+WATERDROPLET_IMG = pygame.image.load(os.path.join('Assets/Enemies/WaterDroplet','WaterDroplet.png'))
+FLOATINGEMBER_IMG = pygame.image.load(os.path.join('Assets/Enemies/FloatingEmber','FloatingEmber.png'))
+
+
 HP_BAR_FULL = pygame.image.load(os.path.join('Assets','HP_Bar_Full.png'))
 HP_BAR_80 = pygame.image.load(os.path.join('Assets','HP_BAR_80.png'))
 HP_BAR_60 = pygame.image.load(os.path.join('Assets','HP_BAR_60.png'))
@@ -36,33 +41,11 @@ HP_BAR_20 = pygame.image.load(os.path.join('Assets','HP_BAR_20.png'))
 
 HP_BAR = pygame.image.load(os.path.join('Assets/HpBar','HpBar.png'))
 #Characters after scaling
-#BOB_CHARACTER = pygame.transform.scale(BOB_CHARACTER_IMAGE, (150,150))
+
 HEALTH_FONT = pygame.font.SysFont('comicsans', 40)
 
-#Attacks
-EVILBAKER_BASIC_ATTACK_IMG1 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack1.png')),(250,250))
-EVILBAKER_BASIC_ATTACK_IMG2 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack2.png')),(250,250))
-EVILBAKER_BASIC_ATTACK_IMG3 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack3.png')),(250,250))
-EVILBAKER_BASIC_ATTACK_IMG4 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack4.png')),(250,250))
-EVILBAKER_BASIC_ATTACK_IMG5 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack5.png')),(250,250))
-EVILBAKER_BASIC_ATTACK_IMG6 = pygame.transform.scale(pygame.image.load(os.path.join('Assets/BaguetteAttack','Evilbaker2_BasicAttack6.png')),(250,250))
 
-MAINHERO_BASICRANGEATTACK = [
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack1.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack2.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack3.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack4.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack5.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack6.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack7.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack6.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack5.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack4.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack3.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack2.png')),(200,200)),
-pygame.transform.scale(pygame.image.load(os.path.join('Assets/mainHero/BasicRangeAttack','BasicRangeAttack1.png')),(200, 200))
 
-]
 #Projectiles:
 FROSTBALL = pygame.image.load(os.path.join('Assets/Projectiles/Frostball','Frostball1.png'))
 FIREBALL = pygame.image.load(os.path.join('Assets/Projectiles/Fireball','Fireball1.png'))
@@ -110,8 +93,8 @@ class Game(object):
         heroGroup.add(hero1)
         heroProjGroup = pygame.sprite.Group()
 
-        enemy1 = Enemy(750,550,self.gameWindow)
-        enemy2 = Enemy(850, 550, self.gameWindow)
+        enemy1 = Enemy(750,550,self.gameWindow,hero1)
+        enemy2 = Enemy(850, 550, self.gameWindow,hero1)
         enemyGroup = pygame.sprite.Group()
         enemyGroup.add(enemy1)
         enemyGroup.add(enemy2)
@@ -121,14 +104,17 @@ class Game(object):
         hpBarGroup.add(hpbar1)
 
         #bg3 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1,'left')
-        bg1 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
-        bg2 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+        # bg1 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+        # bg2 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
+        level1 = MapLevel(1,1,5,SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1)
+        print(level1.backgroundList)
+
 
         #bg3.rect.x -= bg1.image.get_width()
-        bg2.rect.x = bg1.image.get_width()
-        backgroundGroup = pygame.sprite.Group()
-        backgroundGroup.add(bg1)
-        backgroundGroup.add(bg2)
+        # bg2.rect.x = bg1.image.get_width()
+        # backgroundGroup = pygame.sprite.Group()
+        # backgroundGroup.add(bg1)
+        # backgroundGroup.add(bg2)
         #backgroundGroup.add(bg3)
 
         while run:
@@ -142,9 +128,11 @@ class Game(object):
             #print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
             #Background
+
             self.drawWindow()
-            backgroundGroup.update()
-            backgroundGroup.draw(self.gameWindow)
+            self.drawLevel(level1)
+
+
             #MainHero handling part
             heroGroup.update()
             heroGroup.draw(self.gameWindow)
@@ -154,7 +142,7 @@ class Game(object):
 
             #Enemy handling part
             enemyGroup.update()
-            self.spawnSomeMobs(enemyGroup)
+            self.spawnSomeMobs(enemyGroup,hero1)
             enemyGroup.draw(self.gameWindow)
 
             #HP bar in the corner handling part
@@ -172,6 +160,10 @@ class Game(object):
         self.gameWindow.fill(WHITE)
         #self.drawBackground()
 
+    def drawLevel(self,level):
+        for i in level.backgroundList:
+            self.gameWindow.blit(i.image,(i.rect.x,i.rect.y))
+        level.moveAllBackgrounds()
 
     def handleHeroProj(self,hero,heroProjGroup):
         for i in hero.projectileList:
@@ -199,14 +191,14 @@ class Game(object):
                         hero.currentHp += (proj.damage * hero.currentSpellPower)*hero.lifeStealPower
                     proj.kill()
 
-    def spawnSomeMobs(self,enemyGroup):
+    def spawnSomeMobs(self,enemyGroup,hero):
         if len(enemyGroup) <=2:
             for i in range(2):
-                enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow)
+                enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
                 enemyGroup.add(enemy)
 
 
-class Background(pygame.sprite.DirtySprite):
+class Background(pygame.sprite.DirtySprite): #todo: spawn multiple backgrounds for each level instead of rendering them in the present
     def __init__(self,img,window,hero,pos = 'right'):
         super().__init__()
         self.image = img
@@ -219,25 +211,49 @@ class Background(pygame.sprite.DirtySprite):
 
 
     def update(self): #Todo: add rolling background class that handles adding backgrounds based on char position
+        #
+        # if self.rect.x < self.image.get_width() * -1 and self.pos == 'right':
+        #     self.rect.x = self.image.get_width()-7
+        #
+        # if self.pos == 'left' and self.hero.rect.x > self.image.get_width(): #todo: fix this
+        #     self.rect.x -= self.image.get_width()
+        #
+        # if self.hero.movingForward is True:
+        #     self.rect.x -= self.hero.movementSpeed
+        #
+        #
+        # if self.hero.movingBackward is True:
+        #     self.rect.x += self.hero.movementSpeed
+        pass
 
-        if self.rect.x < self.image.get_width() * -1 and self.pos == 'right':
-            self.rect.x = self.image.get_width()-7
-
-        if self.pos == 'left' and self.hero.rect.x > self.image.get_width(): #todo: fix this
-            self.rect.x -= self.image.get_width()
-
-        if self.hero.movingForward is True:
-            self.rect.x -= self.hero.movementSpeed
-
-
-        if self.hero.movingBackward is True:
-            self.rect.x += self.hero.movementSpeed
 
 
 
-    def drawBackground(self):
-        self.window.blit(BASIC_BACKGROUND_IMAGE,(0,0))
+class MapLevel:
+    def __init__(self,areaLevel,enemyLevel,length,backgroundImg,window,hero):
+        self.areaLevel = areaLevel
+        self.enemyLevel = enemyLevel
+        self.levelLength = length
+        self.backgroundImg = backgroundImg
+        self.window = window
+        self.hero = hero
+        self.backgroundList = []
 
+        self.createLevel()
+
+    def createLevel(self):
+
+        for i in range(self.levelLength):
+            t = Background(self.backgroundImg,self.window,self.hero)
+            t.rect.x = t.image.get_width()*i
+            self.backgroundList.append(t)
+
+    def moveAllBackgrounds(self):
+        for i in range(len(self.backgroundList)):
+            if self.hero.movingForward:
+                self.backgroundList[i].rect.x -= self.hero.movementSpeed
+            if self.hero.movingBackward:
+                self.backgroundList[i].rect.x += self.hero.movementSpeed
 
 
 class MainHero(pygame.sprite.DirtySprite):
@@ -245,12 +261,12 @@ class MainHero(pygame.sprite.DirtySprite):
         super().__init__()
         self.window = window
         #Hero related images and general info:
-        self.xCord = x
-        self.yCord = y
+
         self.image = img
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
-
+        self.xCord = self.rect.x
+        self.yCord = y
         #Hero general attributes:
         self.maxHp = 100
         self.baseMovementSpeed = 6
@@ -307,7 +323,7 @@ class MainHero(pygame.sprite.DirtySprite):
     def basicRangeAttack(self): #todo: attacks as seperate class
         sound = pygame.mixer.Sound(os.path.join('Assets/Sounds/AttackSounds/Fireball','FireballSound.wav'))
         sound.set_volume(0.3)
-
+        attackFrames = 15
 
         self.currentAttack = 1
         self.projectileSpawnCords = [self.rect.x+180, self.rect.y+50]
@@ -322,7 +338,7 @@ class MainHero(pygame.sprite.DirtySprite):
             self.projectileList.append(proj)
             t = proj
 
-        if self.attackFrame > len(MAINHERO_BASICRANGEATTACK)-1:
+        if self.attackFrame > attackFrames-1:
             self.attackFrame = 0
             self.currentAttack = 0
             if t in self.projectileList:
@@ -344,17 +360,23 @@ class MainHero(pygame.sprite.DirtySprite):
     def handleHeroMovement(self,keysPressed):
         self.movingForward = False
         self.movingBackward = False
+
         if keysPressed[pygame.K_a]:
-            if self.rect.x -self.movementSpeed <0:
+            if self.xCord - self.movementSpeed <0:
                 self.movingBackward = False
             else:
-                self.rect.x -= self.movementSpeed
-                self.xCord -= self.movementSpeed
                 self.movingBackward = True
+                if self.rect.x - self.movementSpeed <0:
+                    self.xCord -= self.movementSpeed
+                else:
+                    self.rect.x -= self.movementSpeed
+                    self.xCord -= self.movementSpeed
+
 
         if keysPressed[pygame.K_s]:
             self.rect.y += self.movementSpeed
             self.moving = True
+
         if keysPressed[pygame.K_w]:
             self.rect.y -= self.movementSpeed
 
@@ -394,14 +416,19 @@ class HpBar(pygame.sprite.DirtySprite):
         pygame.draw.rect(self.window, (180, 0, 0), (self.rect.x, self.rect.y+(50 - 50* self.hero.currentHp/self.hero.maxHp), 50,  50* self.hero.currentHp/self.hero.maxHp))
 
 
-class Enemy(pygame.sprite.DirtySprite):
-    def __init__(self, x,y,window ):
+class Enemy(pygame.sprite.DirtySprite): #todo: create class for each enemy type - WaterDroplet and so on, that inherits from Enemy class
+    def __init__(self, x,y,window,hero):
         super().__init__()
         self.window = window
         #Hero related images and general info:
-        self.image = EVILBAKER_CHARACTER_IMAGE
+        self.image = FLOATINGEMBER_IMG
+        self.hero = hero
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
+        self.rect.center = [1300,150]
+        self.xCord = self.rect.x
+        self.yCord = self.rect.y
+
 
         #Enemy general attributes:
         self.maxHp = 100
@@ -423,17 +450,19 @@ class Enemy(pygame.sprite.DirtySprite):
 
         #Enemy type:
         self.undead = False
+
     def update(self):
-        #self.rect.center = pygame.mouse.get_pos()
-        #keysPressed = pygame.key.get_pressed()
-        #self.handleHeroMovement(keysPressed)
-        #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
         if self.currentHp <= 0 and not self.undead :
             self.kill()
 
         if self.randomMovement == True:
             self.randomMove()
+
+        if self.hero.movingBackward:
+            self.rect.x += self.hero.movementSpeed
+        if self.hero.movingForward:
+            self.rect.x -= self.hero.movementSpeed
 
     def drawHpBar(self):
         pygame.draw.rect(self.window,(0,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2)-1,self.rect.y-1,self.baseHpBarWidth+2,self.baseHpBarHeight+2), border_radius=0) #black border around hp bar
