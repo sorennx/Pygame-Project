@@ -165,7 +165,7 @@ class Game(object):
             heroProjGroup.update()
             heroProjGroup.draw(self.gameWindow)
             self.handleHeroProj(hero1,heroProjGroup)
-            self.handleProjCollision(heroProjGroup,enemyGroup)
+            self.handleProjCollision(heroProjGroup,enemyGroup,hero1)
 
 
     def drawWindow(self):
@@ -189,12 +189,14 @@ class Game(object):
             if hero.currentAttack == 1:
                 hero.basicRangeAttack()
 
-    def handleProjCollision(self,projGroup,targetGroup):
+    def handleProjCollision(self,projGroup,targetGroup,hero):
         targetsHit = pygame.sprite.groupcollide(projGroup,targetGroup,False,False)
         for proj in targetsHit.keys():
             for tar in targetsHit.values():
                 for i in tar:
-                    i.currentHp -= proj.damage
+                    i.currentHp -= (proj.damage * 0.3*hero.currentSpellPower)
+                    if proj.lifeSteal and hero.currentHp < hero.maxHp:
+                        hero.currentHp += (proj.damage * hero.currentSpellPower)*hero.lifeStealPower
                     proj.kill()
 
     def spawnSomeMobs(self,enemyGroup):
@@ -256,6 +258,7 @@ class MainHero(pygame.sprite.DirtySprite):
         self.baseHpBarWidth = 50
         self.projectileSpawnCords = [0,0]
         self.hostile = False
+        self.baseSpellPower = 1
 
 
         #Hero weapon related stuff:
@@ -265,6 +268,12 @@ class MainHero(pygame.sprite.DirtySprite):
         self.weaponGroup = pygame.sprite.Group()
         self.weapon = None
         self.spawnWeapon()
+
+        #Combat stats
+        self.lifeSteal = True
+        self.lifeStealPower = 0.1
+        self.currentSpellPower = self.baseSpellPower + 3
+
 
         #Hero projectile related stuff:
         self.projectileList = []
@@ -309,7 +318,7 @@ class MainHero(pygame.sprite.DirtySprite):
         #     sound.play()
         #
         if self.attackFrame == 7:
-            proj = Projectile(self.window, self.weapon.weaponProjectileSpawnCords[0], self.weapon.weaponProjectileSpawnCords[1], projImage)
+            proj = Projectile(self.window, self.weapon.weaponProjectileSpawnCords[0], self.weapon.weaponProjectileSpawnCords[1], projImage, self)
             self.projectileList.append(proj)
             t = proj
 
@@ -368,6 +377,7 @@ class MainHero(pygame.sprite.DirtySprite):
             i.rect.x = self.rect.x+self.weaponXoffset
             i.rect.y = self.rect.y+self.weaponYoffset
         self.weaponGroup.draw(self.window)
+
 class HpBar(pygame.sprite.DirtySprite):
     def __init__(self,hero,window):
         super().__init__()
@@ -393,7 +403,7 @@ class Enemy(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
 
-        #Hero general attributes:
+        #Enemy general attributes:
         self.maxHp = 100
         self.baseMovementSpeed = 6
         self.baseHpBarHeight = 10
@@ -401,7 +411,7 @@ class Enemy(pygame.sprite.DirtySprite):
         self.projectileSpawnCords = [0,0]
         self.hostile = True
 
-        #Hero active atributes:
+        #Enemy active atributes:
         self.currentHp = self.maxHp
         self.movementSpeed = self.baseMovementSpeed
         self.visible = True
@@ -411,13 +421,15 @@ class Enemy(pygame.sprite.DirtySprite):
         self.projectileList = []
         self.randomMovement = True
 
+        #Enemy type:
+        self.undead = False
     def update(self):
         #self.rect.center = pygame.mouse.get_pos()
         #keysPressed = pygame.key.get_pressed()
         #self.handleHeroMovement(keysPressed)
         #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
-        if self.currentHp == 0:
+        if self.currentHp <= 0 and not self.undead :
             self.kill()
 
         if self.randomMovement == True:
@@ -443,7 +455,7 @@ class Enemy(pygame.sprite.DirtySprite):
 
 
 class Projectile(pygame.sprite.DirtySprite):
-    def __init__(self,window, x,y,image,velocity = 12):
+    def __init__(self,window, x,y,image,hero, velocity = 12):
         super().__init__()
 
         self.image = image
@@ -453,6 +465,14 @@ class Projectile(pygame.sprite.DirtySprite):
         self.velocity = velocity
         self.window = window
         self.damage = 10
+        self.hero = hero
+
+
+        if self.hero.lifeSteal == True:
+            self.lifeSteal = True
+
+
+
 
     def update(self):
         if self.rect.x < backgroundwidth:
@@ -479,7 +499,7 @@ class Weapon(pygame.sprite.DirtySprite):
 
 
 def main():
-    gameName = "ExileOfPath by CCCC"
+    gameName = "Entity Unknown by CCCC"
     WIDTH = 1280
     HEIGHT = 720
     TICKRATE = 60
