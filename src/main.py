@@ -4,8 +4,8 @@ import time
 #initialising pygame modules
 import random as r
 from Background import *
-from Enemy import *
-from HpBar import *
+from Enemies import *
+from UserInterface import *
 from MainHero import *
 from MapLevel import *
 from Projectile import *
@@ -28,16 +28,12 @@ SCROLLING_BACKGROUND_IMAGE = pygame.transform.scale(pygame.image.load(os.path.jo
 MAIN_HERO_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('./assets/mainHero', 'BaseMageImage.png')), (200, 200))
 FIREMAGE_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('./assets/mainHero/RedMage', 'FireMage1.png')), (108, 180))
 FIREMAGE_STAFF_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('./assets/mainHero/RedMage', 'FireMageStaff1.png')), (72, 128))
-BOB_CHARACTER_IMAGE = pygame.image.load(os.path.join('./assets', 'Bob_Character.png'))
-JOHN_CHARACTER_IMAGE = pygame.image.load(os.path.join('./assets', 'John_Character.png'))
-TEST_IMAGE = pygame.image.load(os.path.join('./assets', 'test.png'))
-BACKGROUND = pygame.image.load(os.path.join('./assets', 'Background.png'))
-EVILBAKER_CHARACTER_IMAGE = pygame.image.load(os.path.join('./assets', 'Evilbaker2_Character.png'))
-EVILBAKER_CHARACTER_IMAGE = pygame.transform.scale(EVILBAKER_CHARACTER_IMAGE,(250,250))
+
+
 
 #Enemies img
 WATERDROPLET_IMG = pygame.image.load(os.path.join('./assets/Enemies/WaterDroplet', 'WaterDroplet.png'))
-FLOATINGEMBER_IMG = pygame.image.load(os.path.join('./assets/Enemies/FloatingEmber', 'FloatingEmber.png'))
+
 
 
 
@@ -50,8 +46,7 @@ HEALTH_FONT = pygame.font.SysFont('comicsans', 40)
 
 
 #Projectiles:
-FROSTBALL = pygame.image.load(os.path.join('./assets/Projectiles/Frostball', 'Frostball1.png'))
-FIREBALL = pygame.image.load(os.path.join('./assets/Projectiles/Fireball', 'Fireball1.png'))
+
 
 #todo: hpBarInTheCorner, new models for the character, new background image, refractor code into different files/modules, xpbar, manabar
 
@@ -83,11 +78,7 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
-
-
         hero1 = MainHero(50, 550, self.gameWindow,FIREMAGE_IMAGE)
-
-
 
         heroGroup = pygame.sprite.Group()
         heroGroup.add(hero1)
@@ -103,25 +94,18 @@ class Game(object):
         hpBarGroup = pygame.sprite.Group()
         hpBarGroup.add(hpbar1)
 
-        #bg3 = Background(SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1,'left')
-        # bg1 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
-        # bg2 = Background(SCROLLING_BACKGROUND_IMAGE, self.gameWindow, hero1)
         level1 = MapLevel(1,1,5,SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1)
-        print(level1.backgroundList)
 
-
-        #bg3.rect.x -= bg1.image.get_width()
-        # bg2.rect.x = bg1.image.get_width()
-        # backgroundGroup = pygame.sprite.Group()
-        # backgroundGroup.add(bg1)
-        # backgroundGroup.add(bg2)
-        #backgroundGroup.add(bg3)
 
         while run:
             clock.tick(self.tickRate)
+            hero1.events = []
+            #hero1.events = pygame.event.get()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
+                else:
+                    hero1.events.append(event)
 
             keysPressed = pygame.key.get_pressed()
 
@@ -155,6 +139,10 @@ class Game(object):
             self.handleHeroProj(hero1,heroProjGroup)
             self.handleProjCollision(heroProjGroup,enemyGroup,hero1)
 
+            #Abilities handling part
+            hero1.beamGroup.update()
+            hero1.beamGroup.draw(self.gameWindow)
+            hero1.handleAbilities(keysPressed)
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)

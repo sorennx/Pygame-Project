@@ -44,7 +44,6 @@ class Enemy(pygame.sprite.DirtySprite): #todo: create class for each enemy type 
     def update(self):
         self.drawHpBar()
         if self.currentHp <= 0 and not self.undead :
-            print("dead")
             self.kill()
 
         if self.randomMovement == True:
