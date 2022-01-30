@@ -15,7 +15,7 @@ class Enemy(pygame.sprite.DirtySprite): #todo: create class for each enemy type 
         self.hero = hero
         self.rect = self.image.get_rect()
         self.rect.center = [x,y]
-        self.rect.center = [2000,150]
+        self.rect.center = [700,150]
         self.xCord = self.rect.x
         self.yCord = self.rect.y
 

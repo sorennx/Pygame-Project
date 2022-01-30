@@ -10,7 +10,7 @@ from MainHero import *
 from MapLevel import *
 from Projectile import *
 from Weapon import *
-
+from GameEvents import *
 #pygame inits
 pygame.font.init()
 pygame.mixer.init()
@@ -107,8 +107,6 @@ class Game(object):
                 else:
                     hero1.events.append(event)
 
-
-
             #print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
             #Background
@@ -134,14 +132,13 @@ class Game(object):
             hpBarGroup.draw(self.gameWindow)
 
             #Projectile handling part
-            heroProjGroup.update()
-            heroProjGroup.draw(self.gameWindow)
-            self.handleHeroProj(hero1,heroProjGroup) #todo: move it somewhere else
-            self.handleProjCollision(heroProjGroup,enemyGroup,hero1)
+            # heroProjGroup.update()
+            # heroProjGroup.draw(self.gameWindow)
 
-            #Abilities handling part
+            #self.handleHeroProj(hero1,heroProjGroup) #todo: move it somewhere else
 
-            #hero1.handleAbilities(keysPressed)
+            self.handleCollisions(hero1,enemyGroup)
+
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
@@ -152,31 +149,28 @@ class Game(object):
             self.gameWindow.blit(i.image,(i.rect.x,i.rect.y))
         level.moveAllBackgrounds()
 
-    def handleHeroProj(self,hero,heroProjGroup): #todo: move it somewhere else
-        for i in hero.projectileList:
-            if i not in heroProjGroup:
-                heroProjGroup.add(i)
-        #print(heroProjGroup)
+    # def handleHeroProj(self,hero,heroProjGroup): #todo: move it somewhere else
+    #     for i in hero.projectileList:
+    #         if i not in heroProjGroup:
+    #             heroProjGroup.add(i)
 
-    # def handleHeroAttacks(self,hero,keysPressed):
-    #     if keysPressed[pygame.K_SPACE]:  # Is there a way to move it to the MainHero class ?
-    #         if hero.gcd == False:
-    #             hero.basicRangeAttack()
-    #             hero.gcd = True
-    #
-    #     if hero.gcd == True:
-    #         if hero.currentAttack == 1:
-    #             hero.basicRangeAttack()
 
-    def handleProjCollision(self,projGroup,targetGroup,hero): #todo: move it somwhere else
-        targetsHit = pygame.sprite.groupcollide(projGroup,targetGroup,False,False)
-        for proj in targetsHit.keys():
-            for tar in targetsHit.values():
-                for i in tar:
-                    i.currentHp -= (proj.damage * 0.3*hero.currentSpellPower)
-                    if proj.lifeSteal and hero.currentHp < hero.maxHp:
-                        hero.currentHp += (proj.damage * hero.currentSpellPower)*hero.lifeStealPower
-                    proj.kill()
+    # def handleProjCollision(self,projGroup,targetGroup,hero): #todo: move it somwhere else
+    #     targetsHit = pygame.sprite.groupcollide(projGroup,targetGroup,False,False)
+    #     for proj in targetsHit.keys():
+    #         for tar in targetsHit.values():
+    #             for i in tar:
+    #                 i.currentHp -= (proj.damage * 0.3*hero.currentSpellPower)
+    #                 if proj.lifeSteal and hero.currentHp < hero.maxHp:
+    #                     hero.currentHp += (proj.damage * hero.currentSpellPower)*hero.lifeStealPower
+    #                 proj.kill()
+
+    def handleCollisions(self, hero, targetGroup):
+        beamGroup = hero.beamGroup
+        projGroup = hero.projectileGroup
+
+        BeamCollision.checkBeamCollision(beamGroup, targetGroup)
+        ProjectileCollision.checkProjCollision(projGroup,targetGroup)
 
     def spawnSomeMobs(self,enemyGroup,hero): #todo: move it somwhere else
         if len(enemyGroup) <=2:

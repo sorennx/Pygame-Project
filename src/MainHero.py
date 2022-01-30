@@ -59,9 +59,12 @@ class MainHero(pygame.sprite.DirtySprite):
         #Hero projectile related stuff:
         self.projectileList = []
         self.projectileImg = FIREBALL
-        #beams
+        #beams and projectiles
         self.beamList = []
         self.beamGroup = pygame.sprite.Group()
+
+        self.projectileList = []
+        self.projectileGroup = pygame.sprite.Group()
 
         #Hero active atributes:
         self.currentHp = self.maxHp - 70
@@ -86,6 +89,7 @@ class MainHero(pygame.sprite.DirtySprite):
         self.drawWeapon()
         #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
+        self.drawProjectiles()
 
 
 
@@ -120,6 +124,31 @@ class MainHero(pygame.sprite.DirtySprite):
             self.weapon.rect = self.weapon.image.get_rect()
             self.weapon.rect.center = [x, y]
             self.attackFrame += 1
+
+    def fireball(self):
+        fireball = Fireball(self.window,self)
+        self.currentAttack = 1
+        if self.attackFrame > fireball.attackFrames:
+            self.attackFrame = 0
+
+        if self.attackFrame == fireball.attackFrames//2:
+            self.projectileList.append(fireball)
+            self.projectileGroup.add(fireball)
+            self.gcd = True
+
+
+
+        if self.attackFrame >= fireball.attackFrames:
+            self.gcd = False
+            self.attackFrame = 0
+            self.currentAttack = 0
+
+        self.weapon.image = pygame.transform.rotate(self.weaponImg,-1 * self.attackFrame)  # part responsbile for rotating/moving the staff accordingly to the current frame of the attack
+        x, y = self.weapon.rect.center
+        self.weapon.rect = self.weapon.image.get_rect()
+        self.weapon.rect.center = [x, y]
+
+        self.attackFrame += 1
 
     def basicRangeAttack(self): #todo: attacks as seperate class
         sound = pygame.mixer.Sound(os.path.join('./assets/Sounds/AttackSounds/Fireball', 'FireballSound.wav'))
@@ -165,7 +194,7 @@ class MainHero(pygame.sprite.DirtySprite):
     def resetWeaponAnimation(self):
         self.attackFrame = 0
         self.weapon.image = pygame.transform.rotate(self.weaponImg, -1 * self.attackFrame)
-
+        self.beamGroup.empty()
 
     def handleUIKeybinds(self,keysPressed):
 
@@ -215,12 +244,11 @@ class MainHero(pygame.sprite.DirtySprite):
             self.movingForward = True
 
     def handleAbilities(self,keysPressed):
-
-
         if self.gcd == False:
             if keysPressed[pygame.K_x]:
                 #self.resetWeaponAnimation()
-                self.basicRangeAttack()
+                #self.basicRangeAttack()
+                self.fireball()
                 self.gcd = True
 
             elif keysPressed[pygame.K_z]:
@@ -229,10 +257,10 @@ class MainHero(pygame.sprite.DirtySprite):
             else:
                 self.resetWeaponAnimation()
 
-
         if self.gcd == True:
             if self.currentAttack == 1:
-                self.basicRangeAttack()
+                #self.basicRangeAttack()
+                self.fireball()
             elif self.currentAttack == 2:
                 self.fireBeam()
 
@@ -249,3 +277,6 @@ class MainHero(pygame.sprite.DirtySprite):
             i.rect.y = self.rect.y+self.weaponYoffset
         self.weaponGroup.draw(self.window)
 
+    def drawProjectiles(self):
+        self.projectileGroup.update()
+        self.projectileGroup.draw(self.window)
