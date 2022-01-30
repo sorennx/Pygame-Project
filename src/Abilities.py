@@ -55,10 +55,18 @@ class Fireball(xBall):
         self.baseVelocity = 5
         self.damage = self.baseDamage + (0.2 * self.hero.baseSpellPower)
         self.velocity = self.baseVelocity + 3
-        self.colided = False
+        self.collided = False
+
+        self.lifeSteal = False
+        self.lifeStealPower = 0
+        if self.hero.lifeSteal:
+            self.lifeSteal = True
+            self.lifeStealPower += self.hero.lifeStealPower
+
 
     def update(self):
-        if self.colided:
+        if self.collided:
+
             self.kill()
         if self.hero.movingBackward:  # apparently this part is very important and projetiles will disappear if they go out of the view
             self.rect.x += self.hero.movementSpeed

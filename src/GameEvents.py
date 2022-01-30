@@ -12,9 +12,9 @@ class ProjectileCollision:
             for tar in targetsHit.values():
                 for i in tar:
                     i.currentHp -= (proj.damage)
-                    # if beam.lifeSteal and beam.hero.currentHp < beam.hero.maxHp:
-                    #     beam.hero.currentHp += (proj.damage * hero.currentSpellPower) * hero.lifeStealPower
                     proj.colided = True
+                    if proj.lifeSteal and proj.hero.currentHp < proj.hero.maxHp:
+                        proj.hero.currentHp += (proj.damage * proj.lifeStealPower)
 
 class BeamCollision:
     @classmethod
