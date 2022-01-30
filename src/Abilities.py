@@ -22,7 +22,7 @@ class FireBeam(Beam):
         self.rect = self.image.get_rect()
         self.rect.x = self.hero.weaponXoffset + self.hero.rect.x
         self.rect.y = self.hero.weaponYoffset + self.hero.rect.y
-
+        self.attackFrames = 60 #the frames/time attack takes to cast
         self.baseDamage = 5
         self.damage = self.baseDamage + (0.1 * self.hero.baseSpellPower)
 

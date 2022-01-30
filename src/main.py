@@ -107,7 +107,7 @@ class Game(object):
                 else:
                     hero1.events.append(event)
 
-            keysPressed = pygame.key.get_pressed()
+
 
             #print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
@@ -121,7 +121,7 @@ class Game(object):
             heroGroup.update()
             heroGroup.draw(self.gameWindow)
 
-            self.handleHeroAttacks(hero1,keysPressed)
+            #self.handleHeroAttacks(hero1,keysPressed) #todo: move it to abilities/different class
 
 
             #Enemy handling part
@@ -136,40 +136,39 @@ class Game(object):
             #Projectile handling part
             heroProjGroup.update()
             heroProjGroup.draw(self.gameWindow)
-            self.handleHeroProj(hero1,heroProjGroup)
+            self.handleHeroProj(hero1,heroProjGroup) #todo: move it somewhere else
             self.handleProjCollision(heroProjGroup,enemyGroup,hero1)
 
             #Abilities handling part
-            hero1.beamGroup.update()
-            hero1.beamGroup.draw(self.gameWindow)
-            hero1.handleAbilities(keysPressed)
+
+            #hero1.handleAbilities(keysPressed)
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
         #self.drawBackground()
 
-    def drawLevel(self,level):
+    def drawLevel(self,level): #todo: move it somewhere else
         for i in level.backgroundList:
             self.gameWindow.blit(i.image,(i.rect.x,i.rect.y))
         level.moveAllBackgrounds()
 
-    def handleHeroProj(self,hero,heroProjGroup):
+    def handleHeroProj(self,hero,heroProjGroup): #todo: move it somewhere else
         for i in hero.projectileList:
             if i not in heroProjGroup:
                 heroProjGroup.add(i)
         #print(heroProjGroup)
 
-    def handleHeroAttacks(self,hero,keysPressed):
-        if keysPressed[pygame.K_SPACE]:  # Is there a way to move it to the MainHero class ?
-            if hero.gcd == False:
-                hero.basicRangeAttack()
-                hero.gcd = True
+    # def handleHeroAttacks(self,hero,keysPressed):
+    #     if keysPressed[pygame.K_SPACE]:  # Is there a way to move it to the MainHero class ?
+    #         if hero.gcd == False:
+    #             hero.basicRangeAttack()
+    #             hero.gcd = True
+    #
+    #     if hero.gcd == True:
+    #         if hero.currentAttack == 1:
+    #             hero.basicRangeAttack()
 
-        if hero.gcd == True:
-            if hero.currentAttack == 1:
-                hero.basicRangeAttack()
-
-    def handleProjCollision(self,projGroup,targetGroup,hero):
+    def handleProjCollision(self,projGroup,targetGroup,hero): #todo: move it somwhere else
         targetsHit = pygame.sprite.groupcollide(projGroup,targetGroup,False,False)
         for proj in targetsHit.keys():
             for tar in targetsHit.values():
@@ -179,7 +178,7 @@ class Game(object):
                         hero.currentHp += (proj.damage * hero.currentSpellPower)*hero.lifeStealPower
                     proj.kill()
 
-    def spawnSomeMobs(self,enemyGroup,hero):
+    def spawnSomeMobs(self,enemyGroup,hero): #todo: move it somwhere else
         if len(enemyGroup) <=2:
             for i in range(2):
                 enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)

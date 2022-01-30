@@ -18,6 +18,7 @@ class MainHero(pygame.sprite.DirtySprite):
         super().__init__()
         self.window = window
         self.events = []
+        self.keysPressed = pygame.key.get_pressed()
         #Hero related images and general info:
         self.characterName = 'Combustador'
         self.image = img
@@ -66,7 +67,7 @@ class MainHero(pygame.sprite.DirtySprite):
         self.currentHp = self.maxHp - 70
         self.movementSpeed = self.baseMovementSpeed
 
-        self.gcd = False
+        self.gcd = False #if set to False - hero is not attacking, True - hero is currently attacking
         self.attackFrame = 0
         self.currentAttack = 0
         self.movingForward = False
@@ -81,10 +82,11 @@ class MainHero(pygame.sprite.DirtySprite):
 
         #keysPressed = pygame.key.get_pressed()
         #self.handleHeroMovement(keysPressed)
-        self.handlKeyPresses()
+        self.handleKeyPresses()
         self.drawWeapon()
         #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
+
 
 
     def drawHpBar(self):
@@ -93,83 +95,79 @@ class MainHero(pygame.sprite.DirtySprite):
         pygame.draw.rect(self.window,(0,167,0),(self.rect.center[0]-(self.baseHpBarWidth/2),self.rect.y,self.baseHpBarWidth*(self.currentHp/self.maxHp),10),border_radius = 0) #green hp bar
 
     def fireBeam(self):
-        print("Fire beam")
-        t = None
-        self.currentAttack = 2
-        attackFrames = 15
-        if self.attackFrame == 7:
-            rBeam = FireBeam(self.window, self)
-            self.beamGroup.add(rBeam)
-            t = rBeam
-
-        if self.attackFrame > attackFrames-1:
+        fBeam = FireBeam(self.window, self)
+        self.currentAttack = 2 #id of a attack/ability
+        if self.attackFrame > fBeam.attackFrames: # reseetting the value of attack frame it's higher than this spell's attackFrames, this could cause weird animations later on
             self.attackFrame = 0
-            self.currentAttack = 0
-            if t in self.beamList:
-                self.beamList.remove(t)
-            self.gcd = False
-            if len(self.beamList)>0:
-                del self.beamList[0]
-        tx = self.rect
-        # self.image = MAINHERO_BASICRANGEATTACK[self.attackFrame]
-        self.weapon.image = pygame.transform.rotate(self.weaponImg, -1 * self.attackFrame)
-        x, y = self.weapon.rect.center
-        self.weapon.rect = self.weapon.image.get_rect()
-        self.weapon.rect.center = [x, y]
 
-        self.attackFrame +=1
+        if self.attackFrame == fBeam.attackFrames:
+
+            if len(self.beamGroup) == 0: #making sure that we have only one beam at the time
+                self.beamList.append(fBeam)
+                self.beamGroup.add(fBeam)
+                self.gcd = True
+
+            self.beamGroup.update() #updating the beam and drawing it
+            self.beamGroup.draw(self.window)
+
+        if self.attackFrame > fBeam.attackFrames-1: #keeping the staff at the same, tilted possition, is it necessary?
+            self.gcd = False
+            self.attackFrame = fBeam.attackFrames
+
+        if self.attackFrame < fBeam.attackFrames: #rotating the staff till it's tilted in the positon we want it to be. 10/fBeam.attackFrames slows down the animation
+            self.weapon.image = pygame.transform.rotate(self.weaponImg, -1 * self.attackFrame * 10/fBeam.attackFrames)  # part responsbile for rotating/moving the staff accordingly to the current frame of the attack
+            x, y = self.weapon.rect.center
+            self.weapon.rect = self.weapon.image.get_rect()
+            self.weapon.rect.center = [x, y]
+            self.attackFrame += 1
 
     def basicRangeAttack(self): #todo: attacks as seperate class
         sound = pygame.mixer.Sound(os.path.join('./assets/Sounds/AttackSounds/Fireball', 'FireballSound.wav'))
         sound.set_volume(0.3)
         attackFrames = 15
-
         self.currentAttack = 1
+
+        if self.attackFrame > attackFrames: # reseetting the value of attack frame it's higher than this spell's attackFrames, this could cause weird animations later on
+            self.attackFrame = 0
+
+
         self.projectileSpawnCords = [self.rect.x+180, self.rect.y+50]
         projImage = self.projectileImg
         projImage = pygame.transform.scale(projImage,(32,32))
-        t = None
+
+
         # if self.attackFrame == 1:
         #     sound.play()
-        #
-        if self.attackFrame == 7:
+
+        if self.attackFrame == 7: #spawning projectile at 7th frame of the attack - when staff is in the right position
             proj = Projectile(self.window, self.weapon.weaponProjectileSpawnCords[0], self.weapon.weaponProjectileSpawnCords[1], projImage, self)
             self.projectileList.append(proj)
-            t = proj
 
-        if self.attackFrame > attackFrames-1:
+        if self.attackFrame > attackFrames-1: #resetting back to frame 0 - so that the staff position goes back to default position
             self.attackFrame = 0
             self.currentAttack = 0
-            if t in self.projectileList:
-                self.projectileList.remove(t)
             self.gcd = False
-            if len(self.projectileList)>0: #what the fuck is going on here????
-                del self.projectileList[0]
 
-        tx = self.rect
-        #self.image = MAINHERO_BASICRANGEATTACK[self.attackFrame]
-        self.weapon.image = pygame.transform.rotate(self.weaponImg, -1*self.attackFrame)
+
+        self.weapon.image = pygame.transform.rotate(self.weaponImg, -1*self.attackFrame) #part responsbile for rotating/moving the staff accordingly to the current frame of the attack
         x,y = self.weapon.rect.center
         self.weapon.rect = self.weapon.image.get_rect()
         self.weapon.rect.center = [x,y]
-
         self.attackFrame += 1
 
-    def handlKeyPresses(self):
+    def handleKeyPresses(self):
         keysPressed = pygame.key.get_pressed()
 
         self.handleHeroMovement(keysPressed)
         self.handleUIKeybinds(keysPressed)
         self.handleAbilities(keysPressed)
 
-    def handleUIKeybinds(self,keysPressed):
+    def resetWeaponAnimation(self):
+        self.attackFrame = 0
+        self.weapon.image = pygame.transform.rotate(self.weaponImg, -1 * self.attackFrame)
 
-        # if keysPressed[pygame.K_ESCAPE]: #Closing all ui
-        #     self.charSheet.isOpen = False
-        #
-        # if keysPressed[pygame.K_c]:
-        #     if self.charSheet.isOpen == False:
-        #         self.charSheet.isOpen = True
+
+    def handleUIKeybinds(self,keysPressed):
 
         for event in self.events:
             if event.type == pygame.KEYDOWN:
@@ -217,12 +215,26 @@ class MainHero(pygame.sprite.DirtySprite):
             self.movingForward = True
 
     def handleAbilities(self,keysPressed):
-        if keysPressed[pygame.K_z]:
-            self.fireBeam()
 
 
+        if self.gcd == False:
+            if keysPressed[pygame.K_x]:
+                #self.resetWeaponAnimation()
+                self.basicRangeAttack()
+                self.gcd = True
+
+            elif keysPressed[pygame.K_z]:
+                self.fireBeam()
+                self.gcd = True
+            else:
+                self.resetWeaponAnimation()
 
 
+        if self.gcd == True:
+            if self.currentAttack == 1:
+                self.basicRangeAttack()
+            elif self.currentAttack == 2:
+                self.fireBeam()
 
     def spawnWeapon(self):
         wep = Weapon(self.rect.x+72,self.rect.y+56,self.window,self.weaponImg,'Staff')
