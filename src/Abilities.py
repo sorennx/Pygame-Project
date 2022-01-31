@@ -46,7 +46,7 @@ class Fireball(xBall):
         self.hero = hero
         self.image = pygame.image.load(os.path.join('./assets/Projectiles/Fireball','Fireball1.png'))
         self.rect = self.image.get_rect()
-        self.rect.x = self.hero.weaponXoffset + self.hero.rect.x
+        self.rect.x = self.hero.weapon.rect.x + self.hero.weaponXoffset
         self.rect.y = self.hero.weaponYoffset + self.hero.rect.y
         self.xCord = hero.xCord
         self.yCord = hero.yCord
@@ -66,8 +66,7 @@ class Fireball(xBall):
 
     def update(self):
         if self.collided:
-
-            self.kill()
+            self.kill() #without this fireballs can 'pierce' - tghey wont disappear after hitting an enemy
         if self.hero.movingBackward:  # apparently this part is very important and projetiles will disappear if they go out of the view
             self.rect.x += self.hero.movementSpeed
             self.xCord += self.hero.movementSpeed

@@ -14,8 +14,9 @@ FROSTBALL = pygame.image.load(os.path.join('./assets/Projectiles/Frostball', 'Fr
 FIREBALL = pygame.image.load(os.path.join('./assets/Projectiles/Fireball', 'Fireball1.png'))
 
 class MainHero(pygame.sprite.DirtySprite):
-    def __init__(self, x,y,window, img = MAIN_HERO_IMAGE ):
+    def __init__(self, x,y,window,game, img = MAIN_HERO_IMAGE ):
         super().__init__()
+        self.game = game
         self.window = window
         self.events = []
         self.keysPressed = pygame.key.get_pressed()
@@ -38,9 +39,13 @@ class MainHero(pygame.sprite.DirtySprite):
         self.baseSpellPower = 1
 
         #Hero UI:
-        self.UIgroup = pygame.sprite.Group()
-        self.charSheet = CharacterSheet(self.window, self)
-        self.UIgroup.add(self.charSheet)
+        self.charSheetWindowGroup = pygame.sprite.Group()
+        self.charSheetWindow = CharacterSheetWindow(self.window, self)
+        self.charSheetWindowGroup.add(self.charSheetWindow)
+
+        self.inventoryWindowGroup = pygame.sprite.Group()
+        self.inventoryWindow = InventoryWindow(self.window, self)
+        self.inventoryWindowGroup.add(self.inventoryWindow)
 
         #Hero weapon related stuff:
         self.weaponXoffset = 66
@@ -59,6 +64,7 @@ class MainHero(pygame.sprite.DirtySprite):
         #Hero projectile related stuff:
         self.projectileList = []
         self.projectileImg = FIREBALL
+
         #beams and projectiles
         self.beamList = []
         self.beamGroup = pygame.sprite.Group()
@@ -201,17 +207,28 @@ class MainHero(pygame.sprite.DirtySprite):
         for event in self.events:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    self.charSheet.isOpen = False
+                    self.charSheetWindow.isOpen = False
+                    self.inventoryWindow.isOpen = False
 
                 if event.key == pygame.K_c:
-                    if self.charSheet.isOpen == False:
-                        self.charSheet.isOpen = True
-                    elif self.charSheet.isOpen == True:
-                        self.charSheet.isOpen = False
+                    if self.charSheetWindow.isOpen == False:
+                        self.charSheetWindow.isOpen = True
+                    elif self.charSheetWindow.isOpen == True:
+                        self.charSheetWindow.isOpen = False
+                if event.key == pygame.K_i:
+                    if self.inventoryWindow.isOpen ==False:
+                        self.inventoryWindow.isOpen = True
+                    elif self.inventoryWindow.isOpen ==True:
+                        self.inventoryWindow.isOpen = False
 
-        if self.charSheet.isOpen:
-            self.UIgroup.update()
-            self.UIgroup.draw(self.window)
+        if self.charSheetWindow.isOpen:
+            self.charSheetWindowGroup.update()
+            self.charSheetWindowGroup.draw(self.window)
+
+        if self.inventoryWindow.isOpen:
+            self.inventoryWindowGroup.update()
+            self.inventoryWindowGroup.draw(self.window)
+
 
     def handleHeroMovement(self,keysPressed):
         self.movingForward = False

@@ -24,7 +24,7 @@ class HpBar(pygame.sprite.DirtySprite):
         pygame.draw.rect(self.window, (180,0,0), (self.rect.x-2, self.rect.y, self.image.get_width()*self.hero.currentHp/self.hero.maxHp, self.image.get_height()))
 
 
-class CharacterSheet(pygame.sprite.Sprite):
+class CharacterSheetWindow(pygame.sprite.Sprite):
     def __init__(self,window,hero):
         super().__init__()
         self.isOpen = False
@@ -63,7 +63,27 @@ class CharacterSheet(pygame.sprite.Sprite):
     def update(self):
         self.drawCharacterSheet()
 
-class Inventory():
+
+class InventoryWindow(pygame.sprite.DirtySprite):
+    def __init__(self,window,hero):
+        super().__init__()
+        self.window = window
+        self.hero = hero
+        self.isOpen = False
+
+        self.inventorySlots = 50
+        self.inventoryList = [] #todo: save inventory
+        self.image = pygame.image.load(os.path.join('./assets/UI/InventoryWindow','InventoryWindow.png'))
+        self.rect = self.image.get_rect()
+        self.rect.x = self.hero.game.width - self.image.get_width()
+
+    def drawItems(self):
+        pass
+
+    def update(self):
+        self.drawItems()
+
+class EquipmentWindow():
     pass
 
 class SkillWindow():

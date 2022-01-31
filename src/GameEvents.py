@@ -1,8 +1,6 @@
 #todo: onHitEvent, onCollisionEvent etc
 import pygame
 
-
-
 class ProjectileCollision:
     @classmethod
     def checkProjCollision(cls, projGroup, targetGroup):
@@ -12,7 +10,7 @@ class ProjectileCollision:
             for tar in targetsHit.values():
                 for i in tar:
                     i.currentHp -= (proj.damage)
-                    proj.colided = True
+                    proj.collided = True
                     if proj.lifeSteal and proj.hero.currentHp < proj.hero.maxHp:
                         proj.hero.currentHp += (proj.damage * proj.lifeStealPower)
 

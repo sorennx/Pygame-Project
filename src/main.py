@@ -78,16 +78,16 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
-        hero1 = MainHero(50, 550, self.gameWindow,FIREMAGE_IMAGE)
+        hero1 = MainHero(50, 550, self.gameWindow,self, FIREMAGE_IMAGE)
 
         heroGroup = pygame.sprite.Group()
         heroGroup.add(hero1)
 
-        enemy1 = Enemy(750,550,self.gameWindow,hero1)
-        enemy2 = Enemy(850, 550, self.gameWindow,hero1)
+        #enemy1 = Enemy(750,550,self.gameWindow,hero1)
+        #enemy2 = Enemy(850, 550, self.gameWindow,hero1)
         enemyGroup = pygame.sprite.Group()
-        enemyGroup.add(enemy1)
-        enemyGroup.add(enemy2)
+        #enemyGroup.add(enemy1)
+        #enemyGroup.add(enemy2)
 
         hpbar1 = HpBar(hero1, self.gameWindow)
         hpBarGroup = pygame.sprite.Group()
@@ -149,11 +149,16 @@ class Game(object):
         ProjectileCollision.checkProjCollision(projGroup,targetGroup)
 
     def spawnSomeMobs(self,enemyGroup,hero): #todo: move it somwhere else
-        if len(enemyGroup) <=2:
-            for i in range(2):
-                enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
-                enemyGroup.add(enemy)
-
+        # if len(enemyGroup) <=1:
+        #     for i in range(1):
+        #         #enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
+        #         wraith = Wraith(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
+        #         #enemyGroup.add(enemy)
+        #         enemyGroup.add(wraith)
+        if len(enemyGroup) == 0:
+            wraith = Wraith(850 - r.randint(50, 100), 550 - r.randint(50, 100), self.gameWindow, hero)
+            # enemyGroup.add(enemy)
+            enemyGroup.add(wraith)
 
 def main():
     gameName = "Entity Unknown by CCCC"
