@@ -71,17 +71,70 @@ class InventoryWindow(pygame.sprite.DirtySprite):
         self.hero = hero
         self.isOpen = False
 
-        self.inventorySlots = 50
-        self.inventoryList = [] #todo: save inventory
+        self.inventorySlotsColumns = 12
+        self.inventorySlotsRows = 6
+        self.slotSize = 32
+        self.inventorySlotDist = 5
+        self.inventorySlotsList = []
+        self.inventoryItemList = [] #todo: save inventory
+        self.inventorySlotGroup = pygame.sprite.Group()
+        self.inventorySlotStartXcord = 8
+        self.inventorySlotStartYcord = 303
         self.image = pygame.image.load(os.path.join('./assets/UI/InventoryWindow','InventoryWindow.png'))
         self.rect = self.image.get_rect()
         self.rect.x = self.hero.game.width - self.image.get_width()
 
+        #Run on init
+        self.createSockets()
+
+
+    def createSockets(self):
+        for j in range(self.inventorySlotsRows):
+            self.createSocketRow(j)
+
+    def createSocketRow(self,j):
+        for i in range(self.inventorySlotsColumns):
+            t = InventorySocket(self, self.inventorySlotStartXcord + (i * self.slotSize),
+                                self.inventorySlotStartYcord + (j * self.slotSize), self.hero, [i, j])
+            self.inventorySlotsList.append(t)
+            self.inventorySlotGroup.add(t)
+
     def drawItems(self):
+
         pass
 
+
     def update(self):
-        self.drawItems()
+
+        if self.isOpen:
+            self.drawItems()
+            self.inventorySlotGroup.update()
+            self.inventorySlotGroup.draw(self.image)
+
+
+class InventorySocket(pygame.sprite.DirtySprite):
+    def __init__(self, inventory, x, y, hero,ij, item=None, size=32):
+        super().__init__()
+        self.hero = hero
+        self.inventory = inventory
+        self.size = size
+        self.item = item
+        self.image = pygame.image.load(os.path.join('./assets/UI/InventoryWindow','InventorySlot.png'))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.ij = ij
+        #print(self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y)
+
+    def update(self):
+
+        for event in self.hero.events:
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                x, y = event.pos
+                if x in range (self.rect.x+self.inventory.rect.x,self.rect.x+self.inventory.rect.x+self.size) and y in range(self.rect.y+self.inventory.rect.y,self.rect.y+self.inventory.rect.y+self.size):
+                    print(f"Clicking on a socket {self.ij}, {self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y}")
+
+
 
 class EquipmentWindow():
     pass

@@ -47,6 +47,8 @@ class MainHero(pygame.sprite.DirtySprite):
         self.inventoryWindow = InventoryWindow(self.window, self)
         self.inventoryWindowGroup.add(self.inventoryWindow)
 
+
+
         #Hero weapon related stuff:
         self.weaponXoffset = 66
         self.weaponYoffset = 56
@@ -220,6 +222,8 @@ class MainHero(pygame.sprite.DirtySprite):
                         self.inventoryWindow.isOpen = True
                     elif self.inventoryWindow.isOpen ==True:
                         self.inventoryWindow.isOpen = False
+
+
 
         if self.charSheetWindow.isOpen:
             self.charSheetWindowGroup.update()
