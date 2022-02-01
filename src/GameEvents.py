@@ -20,6 +20,7 @@ class itemCollision:
             if socket.rect.x + item.hero.inventoryWindow.rect.x in range(item.rect.x, item.rect.x+item.image.get_width())\
                     and socket.rect.y + item.hero.inventoryWindow.rect.y in range(item.rect.y, item.rect.y+item.image.get_height()):
                 #print(socket.rect.x + item.hero.inventoryWindow.rect.x)
+                #print(socket.ij)
                 return socket.ij
 
 class ProjectileCollision:

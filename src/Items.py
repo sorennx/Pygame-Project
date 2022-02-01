@@ -4,14 +4,15 @@ from GameEvents import *
 class Item(pygame.sprite.Sprite):
     def __init__(self,name,img,x,y,gameEvents,hero, spellPower,attackDamage,attackSpeed,castSpeed):
         super().__init__()
-        self.events = gameEvents.events
+        self.gameEvents = gameEvents
+        self.events = self.gameEvents.events
         self.hero = hero
 
         self.name = name
         self.image = img
         self.backUpImg = img
         self.icon = pygame.transform.scale(self.image,(30,30)) #make it tad bit smaller so that a frame can be added
-
+        self.description = "" #add this to the init method
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -22,6 +23,7 @@ class Item(pygame.sprite.Sprite):
         #inventory related stuff:
         self.isInInventory = False
         self.socketIJ = None
+
         #Atributes
         self.spellPower = spellPower
         self.castSpeed = castSpeed
@@ -42,22 +44,16 @@ class Item(pygame.sprite.Sprite):
     def update(self):
         tempxy = self.rect.center
 
-        #Adjust location on the screen if hero is moving
-        if not self.isPickedUp:
-            if self.hero.movingBackward:
-                self.rect.x += self.hero.movementSpeed
-            if self.hero.movingForward:
-                self.rect.x -= self.hero.movementSpeed
-
         if self.isPickedUp:
             self.minimizeImg(tempxy)
+
         if not self.isPickedUp:
             self.maximizeImg(tempxy)
 
         if self.isPickedUp and self.hero.inventoryWindow.isOpen:
             #print(self.rect.x,self.rect.y)
             self.socketIJ = itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
-            self.putItemInSocket()
+            self.putItemInSocket(tempxy)
 
         for event in self.hero.events:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -68,6 +64,13 @@ class Item(pygame.sprite.Sprite):
 
             self.pickUpItem(event)
             self.putDownItem(event)
+
+        # Adjust location on the screen if hero is moving
+        if not self.isPickedUp and not self.isInInventory:
+            if self.hero.movingBackward:
+                self.rect.x += self.hero.movementSpeed
+            if self.hero.movingForward:
+                self.rect.x -= self.hero.movementSpeed
 
     def pickUpItem(self,event):
         if self.isPickedUp == True:
@@ -82,13 +85,21 @@ class Item(pygame.sprite.Sprite):
                 x, y = event.pos
                 self.rect.center = [x,y]
 
-    def putItemInSocket(self):
+    def createCopy(self):
+        copy = Item(self.name,self.image,self.rect.center[0],self.rect.center[1],self.gameEvents,self.hero,self.spellPower,self.attackDamage,self.attackSpeed,self.castSpeed)
+        return copy
+
+    def putItemInSocket(self,tempxy):
         if self.isInInventory == False:
             for socket in self.hero.inventoryWindow.inventorySlotGroup:
-                if socket.ij == self.socketIJ:
-                    socket.item = self
-                    self.isInInventory = True
-                    print(socket.item)
+                if socket.ij == self.socketIJ and socket.isEmpty:
+                    #print(f"Putting item in a socket: {socket.ij}")
+                    copy = self.createCopy()
+                    #copy.minimizeImg(tempxy)
+                    socket.item = copy
+                    copy.isInInventory = True
+                    copy.isPickedUp = False
+                    self.kill()
 
 class QuestItem(Item):
     pass

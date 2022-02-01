@@ -98,17 +98,12 @@ class InventoryWindow(pygame.sprite.DirtySprite):
             self.inventorySlotsList.append(t)
             self.inventorySlotGroup.add(t)
 
-    def drawItems(self):
-        pass
-
 
 
     def update(self):
-
         if self.isOpen:
-            self.drawItems()
             self.inventorySlotGroup.update()
-            self.inventorySlotGroup.draw(self.image)
+            self.inventorySlotGroup.draw(self.image) #paiting the background image of a socket
 
 
 
@@ -124,19 +119,46 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.isEmpty = True
+        self.itemGroup = pygame.sprite.Group()
+        self.itemList = []
 
         self.ij = ij
         #print(self.rect.x,self.rect.y)
         #print(self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y)
 
+
     def update(self):
+
+        if self.isEmpty and self.item is not None:
+            print(f"Adding item to a socket {self.ij}")
+
+            #self.item.image = self.item.image.get_rect()
+            self.item.rect.x = 0
+            self.item.rect.y = 0
+            self.itemGroup.add(self.item)
+            self.isEmpty = False
+
+        #self.itemGroup.update()
+        # self.itemGroup.draw(self.image)
+        if self.isEmpty is False:
+
+            #print("update")
+            self.itemGroup.update()
+            self.itemGroup.draw(self.image)
+            #print(self.item.rect.x, self.item.rect.y)
 
         for event in self.hero.events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if x in range (self.rect.x+self.inventory.rect.x,self.rect.x+self.inventory.rect.x+self.size) and y in range(self.rect.y+self.inventory.rect.y,self.rect.y+self.inventory.rect.y+self.size):
-                    print(f"Clicking on a socket {self.ij}, {self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y}")
+                    #print(f"Clicking on a socket {self.ij}, {self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y}")
+                    #print(self.itemGroup[0].rect.x)
+                    #print(self.rect.x+self.inventory.rect.x)
+                    #self.itemGroup.draw(self.image)
+                    print(len(self.itemGroup))
 
+                    pass
             if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 if x in range(self.rect.x + self.inventory.rect.x,self.rect.x + self.inventory.rect.x + self.size) and y in range(self.rect.y + self.inventory.rect.y, self.rect.y + self.inventory.rect.y + self.size):
