@@ -1,5 +1,6 @@
 import pygame
 from GameEvents import *
+import os
 
 class Item(pygame.sprite.Sprite):
     def __init__(self,name,img,x,y,gameEvents,hero, spellPower,attackDamage,attackSpeed,castSpeed):
@@ -16,14 +17,16 @@ class Item(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-
+        self.fontsize = 16
+        self.font = pygame.font.Font(os.path.join('./assets/Fonts', 'Fontin-Regular.ttf'),
+                                     self.fontsize)  # Poe font - Fontin
         #Stuff used to being moved:
         self.isPickedUp = False
 
         #inventory related stuff:
         self.isInInventory = False
         self.socketIJ = None
-
+        self.toDelete = False
         #Atributes
         self.spellPower = spellPower
         self.castSpeed = castSpeed
@@ -41,8 +44,24 @@ class Item(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = tempxy
 
+    def drawItemCords(self):
+        if self.isInInventory:
+            self.fontsize = 30
+        charName = self.font.render(f'{self.rect.x,self.rect.y}', True, "#101010")
+        charNameRect = charName.get_rect()
+        charNameRect.x = self.rect.x
+        charNameRect.y = self.rect.y
+
+
+
+        self.hero.window.blit(charName, (charNameRect.x, charNameRect.y))
+
     def update(self):
         tempxy = self.rect.center
+        #self.drawItemCords()
+
+        if self.toDelete:
+            self.kill()
 
         if self.isPickedUp:
             self.minimizeImg(tempxy)
@@ -50,11 +69,7 @@ class Item(pygame.sprite.Sprite):
         if not self.isPickedUp:
             self.maximizeImg(tempxy)
 
-        if self.isPickedUp and self.hero.inventoryWindow.isOpen:
-            #print(self.rect.x,self.rect.y)
-            self.socketIJ = itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
-            self.putItemInSocket(tempxy)
-
+        self.socketIJ = itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
         for event in self.hero.events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
@@ -85,20 +100,25 @@ class Item(pygame.sprite.Sprite):
                 x, y = event.pos
                 self.rect.center = [x,y]
 
+                for socket in self.hero.inventoryWindow.inventorySlotGroup:
+                    if socket.ij == self.socketIJ and socket.isEmpty:
+                        #print(f"Adding item {self}to a socket {self.socketIJ}")
+                        copy = self.createCopy() #creating a copy (temp object) so that we can kill the original one, while moving copy to inventory
+                        socket.item = copy
+                        socket.item.rect.x = 0
+                        socket.item.rect.y = 0
+                        socket.itemGroup.add(copy)
+                        copy.isInInventory = True
+                        copy.isPickedUp = False
+                        socket.isEmpty = False
+                        self.kill()
+
+
     def createCopy(self):
         copy = Item(self.name,self.image,self.rect.center[0],self.rect.center[1],self.gameEvents,self.hero,self.spellPower,self.attackDamage,self.attackSpeed,self.castSpeed)
         copy.original = self
         return copy
 
-    def putItemInSocket(self,tempxy):
-        if self.isInInventory == False:
-            for socket in self.hero.inventoryWindow.inventorySlotGroup:
-                if socket.ij == self.socketIJ and socket.isEmpty:
-                    copy = self.createCopy()
-                    socket.item = copy
-                    copy.isInInventory = True
-                    copy.isPickedUp = False
-                    #self.kill()
 
 class QuestItem(Item):
     pass

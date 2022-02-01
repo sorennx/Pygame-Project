@@ -122,26 +122,11 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
         self.isEmpty = True
         self.itemGroup = pygame.sprite.Group()
         self.itemList = []
-
         self.ij = ij
-        #print(self.rect.x,self.rect.y)
-        #print(self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y)
 
 
     def update(self):
 
-        # if self.isEmpty and self.item is not None:
-        #     print(f"Adding item to a socket {self.ij}")
-        #
-        #     #self.item.image = self.item.image.get_rect()
-        #     self.item.rect.x = 0
-        #     self.item.rect.y = 0
-        #     self.itemGroup.add(self.item)
-        #     self.isEmpty = False
-        #     self.item.original.kill()
-
-        #self.itemGroup.update()
-        # self.itemGroup.draw(self.image)
         self.itemGroup.update()
         if self.isEmpty is False:
 
@@ -152,22 +137,13 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
                 if x in range (self.rect.x+self.inventory.rect.x,self.rect.x+self.inventory.rect.x+self.size) and y in range(self.rect.y+self.inventory.rect.y,self.rect.y+self.inventory.rect.y+self.size):
-
                     print(len(self.itemGroup))
-
                     pass
+
             if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 if x in range(self.rect.x + self.inventory.rect.x,self.rect.x + self.inventory.rect.x + self.size) and y in range(self.rect.y + self.inventory.rect.y, self.rect.y + self.inventory.rect.y + self.size):
-                    if self.isEmpty and self.item is not None:
-                        print(f"Adding item {self.item}to a socket {self.ij}")
-
-                        self.item.rect.x = 0
-                        self.item.rect.y = 0
-                        self.itemGroup.add(self.item)
-                        self.item.isPickedUp = False
-                        self.isEmpty = False
-                        self.item.original.kill()
+                    pass
 
 
 class EquipmentWindow():

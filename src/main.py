@@ -128,7 +128,7 @@ class Game(object):
 
             #Enemy handling part
             enemyGroup.update()
-            self.spawnSomeMobs(enemyGroup,hero1)
+            #self.spawnSomeMobs(enemyGroup,hero1)
             enemyGroup.draw(self.gameWindow)
 
             #HP bar in the corner handling part
