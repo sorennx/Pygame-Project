@@ -9,7 +9,8 @@ class Item(pygame.sprite.Sprite):
 
         self.name = name
         self.image = img
-        self.icon = pygame.transform.scale(self.image,(16,16)) #make it tad bit smaller so that a frame can be added
+        self.backUpImg = img
+        self.icon = pygame.transform.scale(self.image,(30,30)) #make it tad bit smaller so that a frame can be added
 
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -28,7 +29,18 @@ class Item(pygame.sprite.Sprite):
         self.attackDamage = attackDamage
         self.attackSpeed = attackSpeed
 
+    def minimizeImg(self,tempxy):
+        self.image = self.icon
+        self.rect = self.image.get_rect()
+        self.rect.center = tempxy
+
+    def maximizeImg(self,tempxy):
+        self.image = self.backUpImg
+        self.rect = self.image.get_rect()
+        self.rect.center = tempxy
+
     def update(self):
+        tempxy = self.rect.center
 
         #Adjust location on the screen if hero is moving
         if not self.isPickedUp:
@@ -36,6 +48,11 @@ class Item(pygame.sprite.Sprite):
                 self.rect.x += self.hero.movementSpeed
             if self.hero.movingForward:
                 self.rect.x -= self.hero.movementSpeed
+
+        if self.isPickedUp:
+            self.minimizeImg(tempxy)
+        if not self.isPickedUp:
+            self.maximizeImg(tempxy)
 
         if self.isPickedUp and self.hero.inventoryWindow.isOpen:
             #print(self.rect.x,self.rect.y)

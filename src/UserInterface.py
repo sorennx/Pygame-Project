@@ -140,8 +140,8 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
             if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 if x in range(self.rect.x + self.inventory.rect.x,self.rect.x + self.inventory.rect.x + self.size) and y in range(self.rect.y + self.inventory.rect.y, self.rect.y + self.inventory.rect.y + self.size):
-                    print(f"Placing item in a socket {self.ij}, {self.rect.x + self.inventory.rect.x, self.rect.y + self.inventory.rect.y}")
-
+                    #print(f"Placing item in a socket {self.ij}, {self.rect.x + self.inventory.rect.x, self.rect.y + self.inventory.rect.y}")
+                    pass
 
 
 class EquipmentWindow():
