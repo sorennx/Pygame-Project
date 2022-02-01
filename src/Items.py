@@ -20,7 +20,7 @@ class Item(pygame.sprite.Sprite):
 
         #inventory related stuff:
         self.isInInventory = False
-
+        self.socketIJ = None
         #Atributes
         self.spellPower = spellPower
         self.castSpeed = castSpeed
@@ -39,8 +39,8 @@ class Item(pygame.sprite.Sprite):
 
         if self.isPickedUp and self.hero.inventoryWindow.isOpen:
             #print(self.rect.x,self.rect.y)
-            itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
-            pass
+            self.socketIJ = itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
+            self.putItemInSocket()
 
         for event in self.hero.events:
             if event.type == pygame.MOUSEBUTTONDOWN:
@@ -48,6 +48,7 @@ class Item(pygame.sprite.Sprite):
                 if x in range(self.rect.x, self.rect.x + self.image.get_width()) and y in range(self.rect.y, self.rect.y + self.image.get_height()):
                     #print(f"Clicking on an item!")
                     self.isPickedUp = True
+
             self.pickUpItem(event)
             self.putDownItem(event)
 
@@ -64,6 +65,13 @@ class Item(pygame.sprite.Sprite):
                 x, y = event.pos
                 self.rect.center = [x,y]
 
+    def putItemInSocket(self):
+        if self.isInInventory == False:
+            for socket in self.hero.inventoryWindow.inventorySlotGroup:
+                if socket.ij == self.socketIJ:
+                    socket.item = self
+                    self.isInInventory = True
+                    print(socket.item)
 
 class QuestItem(Item):
     pass

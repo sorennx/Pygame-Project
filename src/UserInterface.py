@@ -126,7 +126,7 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
         self.rect.y = y
 
         self.ij = ij
-        print(self.rect.x,self.rect.y)
+        #print(self.rect.x,self.rect.y)
         #print(self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y)
 
     def update(self):
