@@ -5,7 +5,7 @@ FONT = pygame.font.SysFont('Verdana',12)
 HP_BAR = pygame.image.load(os.path.join('./assets/UI/LifeBar', 'LifeBar.png'))
 #HP_BAR = pygame.transform.scale(HP_BAR,(200,40))
 #CHAR_SHEET_IMG = pygame.image.load(os.path.join('./assets/UI/CharacterSheet', 'CharacterSheet.png'))
-
+from GameEvents import *
 
 class HpBar(pygame.sprite.DirtySprite):
     def __init__(self,hero,window):
@@ -16,8 +16,6 @@ class HpBar(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.y = self.window.get_height() - self.image.get_height()
         self.rect.x = 0
-
-
 
     def update(self):
 
@@ -65,11 +63,12 @@ class CharacterSheetWindow(pygame.sprite.Sprite):
 
 
 class InventoryWindow(pygame.sprite.DirtySprite):
-    def __init__(self,window,hero):
+    def __init__(self,window,hero,itemsGroup):
         super().__init__()
         self.window = window
         self.hero = hero
         self.isOpen = False
+        self.itemsGroup = itemsGroup
 
         self.inventorySlotsColumns = 12
         self.inventorySlotsRows = 6
@@ -100,8 +99,8 @@ class InventoryWindow(pygame.sprite.DirtySprite):
             self.inventorySlotGroup.add(t)
 
     def drawItems(self):
-
         pass
+
 
 
     def update(self):
@@ -112,8 +111,10 @@ class InventoryWindow(pygame.sprite.DirtySprite):
             self.inventorySlotGroup.draw(self.image)
 
 
-class InventorySocket(pygame.sprite.DirtySprite):
-    def __init__(self, inventory, x, y, hero,ij, item=None, size=32):
+
+
+class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame depending on the item rarity
+    def __init__(self, inventory, x, y, hero, ij, item=None, size=32):
         super().__init__()
         self.hero = hero
         self.inventory = inventory
@@ -123,7 +124,9 @@ class InventorySocket(pygame.sprite.DirtySprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
         self.ij = ij
+        print(self.rect.x,self.rect.y)
         #print(self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y)
 
     def update(self):
@@ -133,6 +136,11 @@ class InventorySocket(pygame.sprite.DirtySprite):
                 x, y = event.pos
                 if x in range (self.rect.x+self.inventory.rect.x,self.rect.x+self.inventory.rect.x+self.size) and y in range(self.rect.y+self.inventory.rect.y,self.rect.y+self.inventory.rect.y+self.size):
                     print(f"Clicking on a socket {self.ij}, {self.rect.x+self.inventory.rect.x,self.rect.y+self.inventory.rect.y}")
+
+            if event.type == pygame.MOUSEBUTTONUP:
+                x, y = event.pos
+                if x in range(self.rect.x + self.inventory.rect.x,self.rect.x + self.inventory.rect.x + self.size) and y in range(self.rect.y + self.inventory.rect.y, self.rect.y + self.inventory.rect.y + self.size):
+                    print(f"Placing item in a socket {self.ij}, {self.rect.x + self.inventory.rect.x, self.rect.y + self.inventory.rect.y}")
 
 
 

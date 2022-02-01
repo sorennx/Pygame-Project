@@ -44,9 +44,8 @@ class MainHero(pygame.sprite.DirtySprite):
         self.charSheetWindowGroup.add(self.charSheetWindow)
 
         self.inventoryWindowGroup = pygame.sprite.Group()
-        self.inventoryWindow = InventoryWindow(self.window, self)
+        self.inventoryWindow = InventoryWindow(self.window, self, game.itemsGroup)
         self.inventoryWindowGroup.add(self.inventoryWindow)
-
 
 
         #Hero weapon related stuff:
@@ -88,14 +87,8 @@ class MainHero(pygame.sprite.DirtySprite):
         self.baseStatList = [self.maxHp,self.baseMovementSpeed,self.baseSpellPower]
 
     def update(self):
-        #print(self.xCord)
-        #self.rect.center = pygame.mouse.get_pos()
-
-        #keysPressed = pygame.key.get_pressed()
-        #self.handleHeroMovement(keysPressed)
         self.handleKeyPresses()
         self.drawWeapon()
-        #self.handleHeroAttacks(keysPressed)
         self.drawHpBar()
         self.drawProjectiles()
 
@@ -217,13 +210,12 @@ class MainHero(pygame.sprite.DirtySprite):
                         self.charSheetWindow.isOpen = True
                     elif self.charSheetWindow.isOpen == True:
                         self.charSheetWindow.isOpen = False
+
                 if event.key == pygame.K_i:
                     if self.inventoryWindow.isOpen ==False:
                         self.inventoryWindow.isOpen = True
                     elif self.inventoryWindow.isOpen ==True:
                         self.inventoryWindow.isOpen = False
-
-
 
         if self.charSheetWindow.isOpen:
             self.charSheetWindowGroup.update()
@@ -301,3 +293,5 @@ class MainHero(pygame.sprite.DirtySprite):
     def drawProjectiles(self):
         self.projectileGroup.update()
         self.projectileGroup.draw(self.window)
+
+

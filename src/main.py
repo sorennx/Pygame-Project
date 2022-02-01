@@ -11,6 +11,8 @@ from MapLevel import *
 from Projectile import *
 from Weapon import *
 from GameEvents import *
+from Items import *
+
 #pygame inits
 pygame.font.init()
 pygame.mixer.init()
@@ -35,7 +37,8 @@ FIREMAGE_STAFF_IMAGE = pygame.transform.scale(pygame.image.load(os.path.join('./
 WATERDROPLET_IMG = pygame.image.load(os.path.join('./assets/Enemies/WaterDroplet', 'WaterDroplet.png'))
 
 
-
+#Items
+TEST_ITEM = pygame.image.load(os.path.join('./assets/Items/TestItems', 'test.png'))
 
 
 HP_BAR = pygame.image.load(os.path.join('./assets/HpBar', 'HpBar.png'))
@@ -63,6 +66,8 @@ class Game(object):
         self.enemyCount = 0
         self.healthFont = pygame.font.SysFont('verdana', 14)
 
+        self.itemsGroup = pygame.sprite.Group()
+
 
     def drawBackground(self, stage=0):
         if stage == 0:
@@ -78,16 +83,15 @@ class Game(object):
         run = True
         clock = pygame.time.Clock()
 
+        gameEvents = GameEventsList()
+
         hero1 = MainHero(50, 550, self.gameWindow,self, FIREMAGE_IMAGE)
 
         heroGroup = pygame.sprite.Group()
         heroGroup.add(hero1)
 
-        #enemy1 = Enemy(750,550,self.gameWindow,hero1)
-        #enemy2 = Enemy(850, 550, self.gameWindow,hero1)
         enemyGroup = pygame.sprite.Group()
-        #enemyGroup.add(enemy1)
-        #enemyGroup.add(enemy2)
+
 
         hpbar1 = HpBar(hero1, self.gameWindow)
         hpBarGroup = pygame.sprite.Group()
@@ -96,15 +100,19 @@ class Game(object):
         level1 = MapLevel(1,1,5,SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1)
 
 
+
+        self.spawnSomeItem(gameEvents,hero1)
         while run:
             clock.tick(self.tickRate)
             hero1.events = []
+            gameEvents.events = [] #resetting the event list each tick
             #hero1.events = pygame.event.get()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     run = False
                 else:
                     hero1.events.append(event)
+                    gameEvents.events.append(event)
 
             #print(hero1.xCord,hero1.rect.x)
             pygame.display.update()
@@ -127,10 +135,13 @@ class Game(object):
             hpBarGroup.update()
             hpBarGroup.draw(self.gameWindow)
 
-            #Collisiob handling part
+            #Collision handling part
 
             self.handleCollisions(hero1,enemyGroup)
 
+            #Items
+            self.itemsGroup.update()
+            self.itemsGroup.draw(self.gameWindow)
 
     def drawWindow(self):
         self.gameWindow.fill(WHITE)
@@ -149,16 +160,14 @@ class Game(object):
         ProjectileCollision.checkProjCollision(projGroup,targetGroup)
 
     def spawnSomeMobs(self,enemyGroup,hero): #todo: move it somwhere else
-        # if len(enemyGroup) <=1:
-        #     for i in range(1):
-        #         #enemy = Enemy(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
-        #         wraith = Wraith(850-r.randint(50,100), 550-r.randint(50,100), self.gameWindow,hero)
-        #         #enemyGroup.add(enemy)
-        #         enemyGroup.add(wraith)
         if len(enemyGroup) == 0:
             wraith = Wraith(850 - r.randint(50, 100), 550 - r.randint(50, 100), self.gameWindow, hero)
             # enemyGroup.add(enemy)
             enemyGroup.add(wraith)
+
+    def spawnSomeItem(self,gameEvents,hero):
+        item1 = Item('Test',TEST_ITEM,500,300,gameEvents,hero,10,10,5,5)
+        self.itemsGroup.add(item1)
 
 def main():
     gameName = "Entity Unknown by CCCC"

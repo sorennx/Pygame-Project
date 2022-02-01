@@ -1,6 +1,21 @@
 #todo: onHitEvent, onCollisionEvent etc
 import pygame
 
+class GameEventsList:
+    def __init__(self):
+        self.events = []
+
+
+    def updateAllObjects(self):
+        pass
+
+class itemCollision:
+    @classmethod
+    def checkItemAndSocketCollision(cls,item,socketGroup):
+        socketsHit = pygame.sprite.spritecollide(item,socketGroup,False)
+        for socket in socketsHit:
+            print(">", socket.ij, socket.rect.x, socket.rect.y)
+
 class ProjectileCollision:
     @classmethod
     def checkProjCollision(cls, projGroup, targetGroup):
