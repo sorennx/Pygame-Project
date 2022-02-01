@@ -7,7 +7,7 @@ class Item(pygame.sprite.Sprite):
         self.gameEvents = gameEvents
         self.events = self.gameEvents.events
         self.hero = hero
-
+        self.original = self
         self.name = name
         self.image = img
         self.backUpImg = img
@@ -87,19 +87,18 @@ class Item(pygame.sprite.Sprite):
 
     def createCopy(self):
         copy = Item(self.name,self.image,self.rect.center[0],self.rect.center[1],self.gameEvents,self.hero,self.spellPower,self.attackDamage,self.attackSpeed,self.castSpeed)
+        copy.original = self
         return copy
 
     def putItemInSocket(self,tempxy):
         if self.isInInventory == False:
             for socket in self.hero.inventoryWindow.inventorySlotGroup:
                 if socket.ij == self.socketIJ and socket.isEmpty:
-                    #print(f"Putting item in a socket: {socket.ij}")
                     copy = self.createCopy()
-                    #copy.minimizeImg(tempxy)
                     socket.item = copy
                     copy.isInInventory = True
                     copy.isPickedUp = False
-                    self.kill()
+                    #self.kill()
 
 class QuestItem(Item):
     pass
