@@ -12,9 +12,14 @@ class GameEventsList:
 class itemCollision:
     @classmethod
     def checkItemAndSocketCollision(cls,item,socketGroup):
-        socketsHit = pygame.sprite.spritecollide(item,socketGroup,False)
-        for socket in socketsHit:
-            print(">", socket.ij, socket.rect.x, socket.rect.y)
+        # socketsHit = pygame.sprite.spritecollide(item,socketGroup,False)
+        # for socket in socketsHit:
+        #     print(">", socket.ij, socket.rect.x, socket.rect.y)
+        #print(item.rect.x+item.image.get_width()-item.rect.x)
+        for socket in socketGroup:
+            if socket.rect.x + item.hero.inventoryWindow.rect.x in range(item.rect.x, item.rect.x+item.image.get_width())\
+                    and socket.rect.y + item.hero.inventoryWindow.rect.y in range(item.rect.y, item.rect.y+item.image.get_height()):
+                print(socket.rect.x + item.hero.inventoryWindow.rect.x)
 
 class ProjectileCollision:
     @classmethod

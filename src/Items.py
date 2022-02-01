@@ -9,7 +9,7 @@ class Item(pygame.sprite.Sprite):
 
         self.name = name
         self.image = img
-        self.icon = pygame.transform.scale(self.image,(32,32)) #make it tad bit smaller so that a frame can be added
+        self.icon = pygame.transform.scale(self.image,(16,16)) #make it tad bit smaller so that a frame can be added
 
         self.rect = self.image.get_rect()
         self.rect.x = x
