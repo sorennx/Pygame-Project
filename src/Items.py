@@ -27,6 +27,7 @@ class Item(pygame.sprite.Sprite):
         self.isInInventory = False
         self.socketIJ = None
         self.toDelete = False
+        self.socket = None
         #Atributes
         self.spellPower = spellPower
         self.castSpeed = castSpeed
@@ -60,9 +61,6 @@ class Item(pygame.sprite.Sprite):
         tempxy = self.rect.center
         #self.drawItemCords()
 
-        if self.toDelete:
-            self.kill()
-
         if self.isPickedUp:
             self.minimizeImg(tempxy)
 
@@ -77,7 +75,7 @@ class Item(pygame.sprite.Sprite):
                     #print(f"Clicking on an item!")
                     self.isPickedUp = True
 
-            self.pickUpItem(event)
+            self.pickUpItem(event,tempxy)
             self.putDownItem(event)
 
         # Adjust location on the screen if hero is moving
@@ -87,11 +85,20 @@ class Item(pygame.sprite.Sprite):
             if self.hero.movingForward:
                 self.rect.x -= self.hero.movementSpeed
 
-    def pickUpItem(self,event):
+    def pickUpItem(self,event,tempxy):
         if self.isPickedUp == True:
             if event.type == pygame.MOUSEMOTION:
                 x, y = event.pos
                 self.rect.center = [x,y]
+
+        # elif self.isPickedUp is False and self.isInInventory is True:
+        #     self.isPickedUp = True
+        #     mousePos = pygame.mouse.get_pos()
+        #     print(mousePos)
+        #     self.maximizeImg(tempxy)
+        #     self.rect.center = mousePos
+        #     self.hero.game.itemsGroup.draw(self.hero.window)
+        #     self.socket.emptySocket()
 
     def putDownItem(self,event):
         if self.isPickedUp == True:
@@ -101,9 +108,11 @@ class Item(pygame.sprite.Sprite):
                 self.rect.center = [x,y]
 
                 for socket in self.hero.inventoryWindow.inventorySlotGroup:
-                    if socket.ij == self.socketIJ and socket.isEmpty:
+                    if socket.ij == self.socketIJ and socket.isEmpty and socket.inventory.isOpen:
                         #print(f"Adding item {self}to a socket {self.socketIJ}")
+
                         copy = self.createCopy() #creating a copy (temp object) so that we can kill the original one, while moving copy to inventory
+                        copy.socket = socket
                         socket.item = copy
                         socket.item.rect.x = 0
                         socket.item.rect.y = 0
@@ -112,7 +121,6 @@ class Item(pygame.sprite.Sprite):
                         copy.isPickedUp = False
                         socket.isEmpty = False
                         self.kill()
-
 
     def createCopy(self):
         copy = Item(self.name,self.image,self.rect.center[0],self.rect.center[1],self.gameEvents,self.hero,self.spellPower,self.attackDamage,self.attackSpeed,self.castSpeed)
