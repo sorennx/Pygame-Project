@@ -103,7 +103,7 @@ class InventoryWindow(pygame.sprite.DirtySprite):
     def update(self):
         if self.isOpen:
             self.inventorySlotGroup.update()
-            self.inventorySlotGroup.draw(self.image) #paiting the background image of a socket
+            self.inventorySlotGroup.draw(self.image) #painting the background image of a socket
 
 
 

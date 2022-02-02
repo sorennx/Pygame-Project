@@ -64,7 +64,7 @@ class Item(pygame.sprite.Sprite):
         if self.isPickedUp:
             self.minimizeImg(tempxy)
 
-        if not self.isPickedUp:
+        if not self.isPickedUp and not self.isInInventory:
             self.maximizeImg(tempxy)
 
         self.socketIJ = itemCollision.checkItemAndSocketCollision(self, self.hero.inventoryWindow.inventorySlotGroup)
@@ -91,39 +91,32 @@ class Item(pygame.sprite.Sprite):
                 x, y = event.pos
                 self.rect.center = [x,y]
 
-        # elif self.isPickedUp is False and self.isInInventory is True:
-        #     self.isPickedUp = True
-        #     mousePos = pygame.mouse.get_pos()
-        #     print(mousePos)
-        #     self.maximizeImg(tempxy)
-        #     self.rect.center = mousePos
-        #     self.hero.game.itemsGroup.draw(self.hero.window)
-        #     self.socket.emptySocket()
-
     def putDownItem(self,event):
         if self.isPickedUp == True:
             if event.type == pygame.MOUSEBUTTONUP:
                 self.isPickedUp = False
                 x, y = event.pos
                 self.rect.center = [x,y]
+                if self.socketIJ is not None:
+                    for socket in self.hero.inventoryWindow.inventorySlotGroup:
+                        if socket.ij == self.socketIJ and socket.isEmpty and socket.inventory.isOpen:
+                            #print(f"Adding item {self}to a socket {self.socketIJ}")
 
-                for socket in self.hero.inventoryWindow.inventorySlotGroup:
-                    if socket.ij == self.socketIJ and socket.isEmpty and socket.inventory.isOpen:
-                        #print(f"Adding item {self}to a socket {self.socketIJ}")
+                            copy = self.createCopy() #creating a copy (temp object) so that we can kill the original one, while moving copy to inventory
+                            copy.socket = socket
+                            socket.item = copy
+                            socket.item.rect.x = 0
+                            socket.item.rect.y = 0
+                            socket.itemGroup.add(copy)
+                            copy.isInInventory = True
+                            copy.isPickedUp = False
+                            socket.isEmpty = False
+                            self.kill()
 
-                        copy = self.createCopy() #creating a copy (temp object) so that we can kill the original one, while moving copy to inventory
-                        copy.socket = socket
-                        socket.item = copy
-                        socket.item.rect.x = 0
-                        socket.item.rect.y = 0
-                        socket.itemGroup.add(copy)
-                        copy.isInInventory = True
-                        copy.isPickedUp = False
-                        socket.isEmpty = False
-                        self.kill()
 
     def createCopy(self):
         copy = Item(self.name,self.image,self.rect.center[0],self.rect.center[1],self.gameEvents,self.hero,self.spellPower,self.attackDamage,self.attackSpeed,self.castSpeed)
+        copy.backUpImg = self.backUpImg
         copy.original = self
         return copy
 
