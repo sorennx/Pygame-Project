@@ -116,6 +116,7 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
         self.size = size
         self.item = item
         self.image = pygame.image.load(os.path.join('./assets/UI/InventoryWindow','InventorySlot.png'))
+        self.imageCover = pygame.image.load(os.path.join('./assets/UI/InventoryWindow','InventorySlot.png'))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -124,22 +125,36 @@ class InventorySocket(pygame.sprite.DirtySprite): #todo: change the socket frame
         self.itemList = []
         self.ij = ij
 
+    def emptySocket(self):
+        self.item.kill()
+        self.item = None
+        self.isEmpty = True
 
     def update(self):
 
         self.itemGroup.update()
-        if self.isEmpty is False:
 
-            self.itemGroup.draw(self.image)
+
+        self.itemGroup.draw(self.image)
             #print(self.item.rect.x, self.item.rect.y)
 
         for event in self.hero.events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
+                mousePos = pygame.mouse.get_pos()
                 if x in range (self.rect.x+self.inventory.rect.x,self.rect.x+self.inventory.rect.x+self.size) and y in range(self.rect.y+self.inventory.rect.y,self.rect.y+self.inventory.rect.y+self.size):
                     print(len(self.itemGroup))
-                    pass
+                    if self.isEmpty is False:
+                        copy = self.item.createCopy()
+                        copy.rect.center = mousePos
+                        copy.isPickedUp = True
+                        copy.isInInventory = False
 
+                        self.hero.game.itemsGroup.add(copy)
+                        self.emptySocket()
+                        self.itemGroup.empty()
+
+                        self.itemGroup.clear(self.image,self.imageCover) #clears the surface of the sprite image by covering that surface with a new image/background, in this case imageCover is the same as self.image. they are the same size
             if event.type == pygame.MOUSEBUTTONUP:
                 x, y = event.pos
                 if x in range(self.rect.x + self.inventory.rect.x,self.rect.x + self.inventory.rect.x + self.size) and y in range(self.rect.y + self.inventory.rect.y, self.rect.y + self.inventory.rect.y + self.size):
