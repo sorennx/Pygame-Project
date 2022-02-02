@@ -93,13 +93,8 @@ class Game(object):
         enemyGroup = pygame.sprite.Group()
 
 
-        hpbar1 = HpBar(hero1, self.gameWindow)
-        hpBarGroup = pygame.sprite.Group()
-        hpBarGroup.add(hpbar1)
 
         level1 = MapLevel(1,1,5,SCROLLING_BACKGROUND_IMAGE,self.gameWindow,hero1)
-
-
 
         self.spawnSomeItem(gameEvents,hero1)
         while run:
@@ -131,9 +126,10 @@ class Game(object):
             #self.spawnSomeMobs(enemyGroup,hero1)
             enemyGroup.draw(self.gameWindow)
 
-            #HP bar in the corner handling part
-            hpBarGroup.update()
-            hpBarGroup.draw(self.gameWindow)
+            #HP bar and XP bar in the corner handling part
+
+
+
 
             #Collision handling part
 

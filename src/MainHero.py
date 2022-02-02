@@ -38,6 +38,18 @@ class MainHero(pygame.sprite.DirtySprite):
         self.hostile = False
         self.baseSpellPower = 1
 
+        self.hpBar = HpBar(self,self.window)
+        self.hpBarGroup = pygame.sprite.Group()
+        self.hpBarGroup.add(self.hpBar)
+
+        #XP section:
+        self.level = 1
+        self.currentXpPoints = 0
+        self.xpPointsForNextLevel = 100
+        self.xpBar = XpBar(self,self.window)
+        self.xpBarGroup = pygame.sprite.Group()
+        self.xpBarGroup.add(self.xpBar)
+
         #Hero UI:
         self.charSheetWindowGroup = pygame.sprite.Group()
         self.charSheetWindow = CharacterSheetWindow(self.window, self)
@@ -87,12 +99,29 @@ class MainHero(pygame.sprite.DirtySprite):
         self.baseStatList = [self.maxHp,self.baseMovementSpeed,self.baseSpellPower]
 
     def update(self):
+        print(self.level, self.currentXpPoints)
+        self.levelUp()
+        self.drawCornerBars()
+
         self.handleKeyPresses()
         self.drawWeapon()
         self.drawHpBar()
         self.drawProjectiles()
 
 
+    def levelUp(self):
+        if self.currentXpPoints >= self.xpPointsForNextLevel:
+            print("level up!")
+            self.level += 1
+            leftover = self.currentXpPoints - self.xpPointsForNextLevel
+            self.currentXpPoints = 0 + leftover
+            self.xpPointsForNextLevel += self.level * 100
+
+    def drawCornerBars(self):
+        self.xpBarGroup.update()
+        self.xpBarGroup.draw(self.window)
+        self.hpBarGroup.update()
+        self.hpBarGroup.draw(self.window)
 
     def drawHpBar(self):
         pygame.draw.rect(self.window,(0,0,0),(self.rect.center[0]-(self.baseHpBarWidth/2)-1,self.rect.y-1,self.baseHpBarWidth+2,self.baseHpBarHeight+2), border_radius=0) #black border around hp bar
@@ -208,6 +237,7 @@ class MainHero(pygame.sprite.DirtySprite):
                 if event.key == pygame.K_c:
                     if self.charSheetWindow.isOpen == False:
                         self.charSheetWindow.isOpen = True
+
                     elif self.charSheetWindow.isOpen == True:
                         self.charSheetWindow.isOpen = False
 
@@ -243,6 +273,7 @@ class MainHero(pygame.sprite.DirtySprite):
 
 
         if keysPressed[pygame.K_s]:
+
             self.rect.y += self.movementSpeed
             self.moving = True
 
@@ -250,6 +281,7 @@ class MainHero(pygame.sprite.DirtySprite):
             self.rect.y -= self.movementSpeed
 
         if keysPressed[pygame.K_d]:
+            self.currentXpPoints += 100
             if self.rect.x + self.movementSpeed < 1280/1.5:
 
                 self.rect.x += self.movementSpeed

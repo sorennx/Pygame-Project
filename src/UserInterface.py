@@ -18,9 +18,21 @@ class HpBar(pygame.sprite.DirtySprite):
         self.rect.x = 0
 
     def update(self):
-
         pygame.draw.rect(self.window, (180,0,0), (self.rect.x-2, self.rect.y, self.image.get_width()*self.hero.currentHp/self.hero.maxHp, self.image.get_height()))
 
+
+class XpBar(pygame.sprite.DirtySprite):
+    def __init__(self,hero,window):
+        super().__init__()
+        self.window = window
+        self.hero = hero
+        self.image = HP_BAR
+        self.rect = self.image.get_rect()
+        self.rect.y = (self.window.get_height() - self.image.get_height()) - (self.image.get_height()+2)
+        self.rect.x = 0
+
+    def update(self):
+        pygame.draw.rect(self.window, "#380349", (self.rect.x - 2, self.rect.y, self.image.get_width() * self.hero.currentXpPoints / self.hero.xpPointsForNextLevel, self.image.get_height()))
 
 class CharacterSheetWindow(pygame.sprite.Sprite):
     def __init__(self,window,hero):
@@ -97,7 +109,6 @@ class InventoryWindow(pygame.sprite.DirtySprite):
                                 self.inventorySlotStartYcord + (j * self.slotSize), self.hero, [i, j])
             self.inventorySlotsList.append(t)
             self.inventorySlotGroup.add(t)
-
 
 
     def update(self):
